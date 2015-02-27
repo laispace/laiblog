@@ -1,0 +1,65 @@
+{{!< default}}
+
+{{! The main content area on the homepage }}
+<main class="page-wrap author-page" role="main">
+    {{! Everything inside the #author tags pulls data from the author }}
+    {{#author}}    
+        <section class="author-profile">
+            {{#if image}}
+            <img src="{{image}}" alt="{{name}} 的照片" />
+            {{/if}}
+            <h2 class="page-title">{{name}} 写了{{plural ../pagination.total empty='没有文章' singular='% 篇文章' plural='% 篇文章'}}</h1>
+            <p class="author-bio">简介: {{bio}}</p>
+        </section>
+    {{/author}}
+    
+    {{! Each post will be output using this markup }}
+    {{#foreach posts}}
+
+    <article class="{{post_class}}" data-scroll-reveal="enter bottom">
+        <div>    
+            <header class="post-header">
+                {{#if image}}
+                	<img src="{{image}}" alt="{{{title}}}" />
+                {{/if}}
+                
+                <h2 class="post-title">
+                    <a href="{{url}}"><span>{{{title}}}</span></a>
+                </h2>
+            </header>
+            <section class="post-excerpt">
+                <p>{{excerpt}}&hellip;</p>
+
+                <a href="{{url}}" class="post-readmore">阅读更多</a>
+            </section>
+        </div>
+
+        <aside class="post-meta" data-scroll-reveal="enter left and move 30px after .3s">
+            <time datetime="{{date format='YYYY-MM-DD'}}">
+                {{date format="MMM DD"}}
+                <span>{{date format="YYYY"}}</span>
+            </time> 
+
+            <dl>
+                <dt class="item-author">by</dt>
+                <dd>{{author}}</dd>
+               
+                {{#if tags}}
+                <dt class="item-tags">标签:</dt>
+                <dd>
+                    <ul>
+                      {{#foreach tags}}
+                        <li><a href="{{url}}">{{name}}</a>{{#if @last}} {{else}}, {{/if}}</li>
+                      {{/foreach}}
+                    </ul>
+                </dd>
+                {{/if}}
+            </dl>
+        </aside>
+    </article>
+
+    {{/foreach}}
+
+    {{!! After all the posts, we have the previous/next pagination links }}
+    {{pagination}}
+</main>
