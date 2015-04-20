@@ -7,7 +7,7 @@ var express,
     parentApp,
     errors;
 
-// Make sure dependencies are installed and file system permissions are correct.
+//  make sure dependencies are installed and file system permissions are correct.
 require('./core/server/utils/startup-check').check();
 
 // Proceed with startup
