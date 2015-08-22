@@ -1,0 +1,12 @@
+{{!-- In this file you can override your pagination --}}
+<nav class="pagination">
+    <div>
+		{{#if prev}}
+            <a class="newer-posts" href="{{page_url prev}}">上一页</a>
+		{{/if}}
+	   	<span class="page-number"> {{page}} / {{pages}}</span>
+		{{#if next}}
+            <a class="older-posts" href="{{page_url next}}">下一页</a>
+		{{/if}}
+	</div>
+</nav>
