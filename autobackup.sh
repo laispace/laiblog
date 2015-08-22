@@ -8,14 +8,14 @@ DATE_ALL=`date +%Y-%m-%d_%H.%M.%S`
 
 cd /data/sites/laiblog/
 
-# 线上服务器仅备份 ghost.db 数据库
+# backuo ghost.db
 git add /data/sites/laiblog/content/data/ghost.db
 
-git commit -m "ghost.db 自动备份"
+git commit -m "auto backup"
 
 git push
 
-git tag -a v$DATE_ALL -m 'ghost.db 自动备份'
+git tag -a v$DATE_ALL -m 'auto backup'
 
 git push origin v$DATE_ALL:v$DATE_ALL
 
