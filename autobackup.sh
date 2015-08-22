@@ -9,7 +9,7 @@ DATE_ALL=`date +%Y-%m-%d_%H.%M.%S`
 cd /data/laiblog/
 
 # 线上服务器仅备份 ghost.db 数据库
-git add content/data/ghost.db
+git add /data/laiblog/content/data/ghost.db
 
 git commit -m "ghost.db 自动备份"
 
