@@ -10,8 +10,19 @@ config = {
     // When running Ghost in the wild, use the production environment
     // Configure your URL and mail settings here
     production: {
-        url: 'http://127.0.0.1:2368',
-        mail: {},
+        url: 'http://laispace.com',
+        // Example mail config
+        // Visit http://support.ghost.org/mail for instructions
+        mail: {
+          //transport: 'SMTP',
+          //options: {
+          //    service: 'Gmail',
+          //    auth: {
+          //        user: '', //  username
+          //        pass: ''  //  password
+          //    }
+          //}
+        },
         database: {
             client: 'sqlite3',
             connection: {
