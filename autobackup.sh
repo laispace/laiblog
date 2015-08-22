@@ -6,10 +6,10 @@ DATE_ALL=`date +%Y-%m-%d_%H.%M.%S`
 # test
 # echo "$DATE_YEAR/$DATE_MONTH ..." > $DATE_YEAR-$DATE_MONTH-$DATE自动备份.txt
 
-cd /data/laiblog/
+cd /data/sites/laiblog/
 
 # 线上服务器仅备份 ghost.db 数据库
-git add /data/laiblog/content/data/ghost.db
+git add /data/sites/laiblog/content/data/ghost.db
 
 git commit -m "ghost.db 自动备份"
 
