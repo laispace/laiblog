@@ -1,25 +1,18 @@
-import BaseValidator from './base';
+import Ember from 'ember';
+var SigninValidator = Ember.Object.create({
+    check: function (model) {
+        var data = model.getProperties('identification', 'password'),
+            validationErrors = [];
 
-var SigninValidator = BaseValidator.create({
-    properties: ['identification', 'password'],
-    identification: function (model) {
-        var id = model.get('identification');
-
-        if (validator.empty(id)) {
-            model.get('errors').add('identification', 'Please enter an email');
-            this.invalidate();
-        } else if (!validator.isEmail(id)) {
-            model.get('errors').add('identification', 'Invalid email');
-            this.invalidate();
+        if (!validator.isEmail(data.identification)) {
+            validationErrors.push('Invalid Email');
         }
-    },
-    password: function (model) {
-        var password = model.get('password') || '';
 
-        if (!validator.isLength(password, 1)) {
-            model.get('errors').add('password', 'Please enter a password');
-            this.invalidate();
+        if (!validator.isLength(data.password || '', 1)) {
+            validationErrors.push('Please enter a password');
         }
+
+        return validationErrors;
     }
 });
 

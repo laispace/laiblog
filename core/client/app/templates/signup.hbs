@@ -1,50 +1,33 @@
-<div class="gh-flow">
+<section class="setup-box js-signup-box fade-in">
+    <div class="vertical">
+        <form id="signup" class="setup-form" method="post" novalidate="novalidate">
 
-    <div class="gh-flow-content-wrap">
-        <section class="gh-flow-content">
+            {{!-- Horrible hack to prevent Chrome from incorrectly auto-filling inputs --}}
+            <input style="display:none;" type="text" name="fakeusernameremembered"/>
+            <input style="display:none;" type="password" name="fakepasswordremembered"/>
+
             <header>
-                <h1>Create your account</h1>
+                <h1>Welcome to Ghost</h1>
+                <h2>Create your account to start publishing</h2>
             </header>
-
-            <form id="signup" class="gh-flow-create" method="post" novalidate="novalidate">
-                {{!-- Hack to stop Chrome's broken auto-fills --}}
-                <input style="display:none;" type="text" name="fakeusernameremembered"/>
-                <input style="display:none;" type="password" name="fakepasswordremembered"/>
-
-                {{gh-profile-image fileStorage=config.fileStorage email=validEmail setImage="setImage"}}
-                {{#gh-form-group errors=model.errors property="email"}}
-                    <label for="email-address">Email address</label>
-                    <span class="input-icon icon-mail">
-                        {{gh-input type="email" name="email" placeholder="Eg. john@example.com" class="gh-input" enter=(action "signup") disabled=true autocorrect="off" value=model.email focusOut=(action "handleEmail")}}
-                    </span>
-                    {{gh-error-message errors=model.errors property="email"}}
-                {{/gh-form-group}}
-                {{#gh-form-group errors=model.errors property="name"}}
-                    <label for="full-name">Full name</label>
-                    <span class="input-icon icon-user">
-                        {{gh-input type="text" name="name" placeholder="Eg. John H. Watson" class="gh-input" enter=(action "signup") autofocus="autofocus" autocorrect="off" value=model.name focusOut=(action "validate" "name")}}
-                    </span>
-                    {{gh-error-message errors=model.errors property="name"}}
-                {{/gh-form-group}}
-                {{#gh-form-group errors=model.errors property="password"}}
-                    <label for="password">Password</label>
-                    <span class="input-icon icon-lock">
-                        {{input class="gh-input" type="password" name="password" autofocus="autofocus" enter=(action "signup") autocorrect="off" value=model.password focusOut=(action "validate" "password")}}
-                        <div class="pw-strength">
-                            <div class="pw-strength-dot"></div>
-                            <div class="pw-strength-dot"></div>
-                            <div class="pw-strength-dot"></div>
-                            <div class="pw-strength-dot"></div>
-                            <div class="pw-strength-dot <!--pw-strength-activedot-->"></div>
-                        </div>
-                    </span>
-                    {{gh-error-message errors=model.errors property="password"}}
-                {{/gh-form-group}}
-            </form>
-
-            {{gh-spin-button type="submit" class="btn btn-green btn-lg btn-block" action="signup" submitting=submitting buttonText="Create Account" autoWidth=false}}
-            <p class="main-error">{{{flowErrors}}}</p>
-        </section>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                {{input type="email" name="email" autocorrect="off" value=model.email }}
+                <p>Used for important notifications</p>
+            </div>
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                {{gh-trim-focus-input type="text" name="name" autofocus="autofocus" autocorrect="off" value=model.name }}
+                <p>The name that you will sign your posts with</p>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                {{input type="password" name="password" autofocus="autofocus" autocorrect="off" value=model.password }}
+                <p>Must be at least 8 characters</p>
+            </div>
+            <footer>
+                <button type="submit" class="btn btn-green btn-lg" {{action "signup"}} disabled={{submitting}}>Create Account</button>
+            </footer>
+        </form>
     </div>
-
-</div>
+</section>

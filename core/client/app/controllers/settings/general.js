@@ -1,24 +1,8 @@
 import Ember from 'ember';
-import SettingsSaveMixin from 'ghost/mixins/settings-save';
 import randomPassword from 'ghost/utils/random-password';
 
-export default Ember.Controller.extend(SettingsSaveMixin, {
-    notifications: Ember.inject.service(),
-    config: Ember.inject.service(),
-
-    selectedTheme: Ember.computed('model.activeTheme', 'themes', function () {
-        var activeTheme = this.get('model.activeTheme'),
-            themes = this.get('themes'),
-            selectedTheme;
-
-        themes.forEach(function (theme) {
-            if (theme.name === activeTheme) {
-                selectedTheme = theme;
-            }
-        });
-
-        return selectedTheme;
-    }),
+var SettingsGeneralController = Ember.Controller.extend({
+    selectedTheme: null,
 
     logoImageSource: Ember.computed('model.logo', function () {
         return this.get('model.logo') || '';
@@ -28,18 +12,16 @@ export default Ember.Controller.extend(SettingsSaveMixin, {
         return this.get('model.cover') || '';
     }),
 
-    isDatedPermalinks: Ember.computed('model.permalinks', {
-        set: function (key, value) {
+    isDatedPermalinks: Ember.computed('model.permalinks', function (key, value) {
+        // setter
+        if (arguments.length > 1) {
             this.set('model.permalinks', value ? '/:year/:month/:day/:slug/' : '/:slug/');
-
-            var slugForm = this.get('model.permalinks');
-            return slugForm !== '/:slug/';
-        },
-        get: function () {
-            var slugForm = this.get('model.permalinks');
-
-            return slugForm !== '/:slug/';
         }
+
+        // getter
+        var slugForm = this.get('model.permalinks');
+
+        return slugForm !== '/:slug/';
     }),
 
     themes: Ember.computed(function () {
@@ -63,24 +45,17 @@ export default Ember.Controller.extend(SettingsSaveMixin, {
         }
     }),
 
-    save: function () {
-        var notifications = this.get('notifications'),
-            config = this.get('config');
-
-        return this.get('model').save().then(function (model) {
-            config.set('blogTitle', model.get('title'));
-
-            return model;
-        }).catch(function (error) {
-            if (error) {
-                notifications.showAPIError(error);
-            }
-        });
-    },
-
     actions: {
-        validate: function () {
-            this.get('model').validate(arguments);
+        save: function () {
+            var self = this;
+
+            return this.get('model').save().then(function (model) {
+                self.notifications.showSuccess('Settings successfully saved.');
+
+                return model;
+            }).catch(function (errors) {
+                self.notifications.showErrors(errors);
+            });
         },
 
         checkPostsPerPage: function () {
@@ -89,10 +64,8 @@ export default Ember.Controller.extend(SettingsSaveMixin, {
             if (postsPerPage < 1 || postsPerPage > 1000 || isNaN(postsPerPage)) {
                 this.set('model.postsPerPage', 5);
             }
-        },
-
-        setTheme: function (theme) {
-            this.set('model.activeTheme', theme.name);
         }
     }
 });
+
+export default SettingsGeneralController;

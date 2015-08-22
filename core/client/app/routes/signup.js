@@ -1,19 +1,13 @@
 import Ember from 'ember';
-import DS from 'ember-data';
-import {request as ajax} from 'ic-ajax';
-import Configuration from 'simple-auth/configuration';
 import styleBody from 'ghost/mixins/style-body';
+import loadingIndicator from 'ghost/mixins/loading-indicator';
 
-export default Ember.Route.extend(styleBody, {
+var SignupRoute = Ember.Route.extend(styleBody, loadingIndicator, {
     classNames: ['ghost-signup'],
-
-    ghostPaths: Ember.inject.service('ghost-paths'),
-    notifications: Ember.inject.service(),
-
     beforeModel: function () {
         if (this.get('session').isAuthenticated) {
-            this.get('notifications').showAlert('You need to sign out to register as a new user.', {type: 'warn', delayed: true});
-            this.transitionTo(Configuration.routeAfterAuthentication);
+            this.notifications.showWarn('You need to sign out to register as a new user.', {delayed: true});
+            this.transitionTo(SimpleAuth.Configuration.routeAfterAuthentication);
         }
     },
 
@@ -26,7 +20,7 @@ export default Ember.Route.extend(styleBody, {
 
         return new Ember.RSVP.Promise(function (resolve) {
             if (!re.test(params.token)) {
-                self.get('notifications').showAlert('Invalid token.', {type: 'error', delayed: true});
+                self.notifications.showError('Invalid token.', {delayed: true});
 
                 return resolve(self.transitionTo('signin'));
             }
@@ -36,9 +30,8 @@ export default Ember.Route.extend(styleBody, {
 
             model.set('email', email);
             model.set('token', params.token);
-            model.set('errors', DS.Errors.create());
 
-            return ajax({
+            return ic.ajax.request({
                 url: self.get('ghostPaths.url').api('authentication', 'invitation'),
                 type: 'GET',
                 dataType: 'json',
@@ -47,7 +40,7 @@ export default Ember.Route.extend(styleBody, {
                 }
             }).then(function (response) {
                 if (response && response.invitation && response.invitation[0].valid === false) {
-                    self.get('notifications').showAlert('The invitation does not exist or is no longer valid.', {type: 'warn', delayed: true});
+                    self.notifications.showError('The invitation does not exist or is no longer valid.', {delayed: true});
 
                     return resolve(self.transitionTo('signin'));
                 }
@@ -66,3 +59,5 @@ export default Ember.Route.extend(styleBody, {
         this.controllerFor('signup').setProperties({email: '', password: '', token: ''});
     }
 });
+
+export default SignupRoute;

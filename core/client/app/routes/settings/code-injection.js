@@ -1,13 +1,12 @@
 import AuthenticatedRoute from 'ghost/routes/authenticated';
+import loadingIndicator from 'ghost/mixins/loading-indicator';
 import CurrentUserSettings from 'ghost/mixins/current-user-settings';
 import styleBody from 'ghost/mixins/style-body';
 
-export default AuthenticatedRoute.extend(styleBody, CurrentUserSettings, {
-    titleToken: 'Settings - Code Injection',
+var SettingsCodeInjectionRoute = AuthenticatedRoute.extend(styleBody, loadingIndicator, CurrentUserSettings, {
     classNames: ['settings-view-code'],
 
-    beforeModel: function (transition) {
-        this._super(transition);
+    beforeModel: function () {
         return this.get('session.user')
             .then(this.transitionAuthor())
             .then(this.transitionEditor());
@@ -25,3 +24,5 @@ export default AuthenticatedRoute.extend(styleBody, CurrentUserSettings, {
         }
     }
 });
+
+export default SettingsCodeInjectionRoute;

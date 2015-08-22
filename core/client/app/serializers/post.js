@@ -18,8 +18,8 @@ var PostSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
     },
 
     extractSingle: function (store, primaryType, payload) {
-        var root = this.keyForAttribute(primaryType.modelName),
-            pluralizedRoot = Ember.String.pluralize(primaryType.modelName);
+        var root = this.keyForAttribute(primaryType.typeKey),
+            pluralizedRoot = Ember.String.pluralize(primaryType.typeKey);
 
         // make payload { post: { title: '', tags: [obj, obj], etc. } }.
         // this allows ember-data to pull the embedded tags out again,
@@ -37,7 +37,7 @@ var PostSerializer = ApplicationSerializer.extend(DS.EmbeddedRecordsMixin, {
         options.includeId = true;
 
         // We have a plural root in the API
-        var root = Ember.String.pluralize(type.modelName),
+        var root = Ember.String.pluralize(type.typeKey),
             data = this.serialize(record, options);
 
         // Properties that exist on the model but we don't want sent in the payload

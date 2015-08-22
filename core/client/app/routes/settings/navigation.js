@@ -3,12 +3,12 @@ import CurrentUserSettings from 'ghost/mixins/current-user-settings';
 import styleBody from 'ghost/mixins/style-body';
 
 var NavigationRoute = AuthenticatedRoute.extend(styleBody, CurrentUserSettings, {
-    titleToken: 'Settings - Navigation',
+
+    titleToken: 'Navigation',
 
     classNames: ['settings-view-navigation'],
 
-    beforeModel: function (transition) {
-        this._super(transition);
+    beforeModel: function () {
         return this.get('session.user')
             .then(this.transitionAuthor());
     },

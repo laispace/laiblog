@@ -1,18 +1,16 @@
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
-    notifications: Ember.inject.service(),
-
+var UploadController = Ember.Controller.extend({
     acceptEncoding: 'image/*',
-
     actions: {
         confirmAccept: function () {
-            var notifications = this.get('notifications');
+            var self = this;
 
             this.get('model').save().then(function (model) {
+                self.notifications.showSuccess('Saved');
                 return model;
             }).catch(function (err) {
-                notifications.showAPIError(err);
+                self.notifications.showErrors(err);
             });
         },
 
@@ -21,3 +19,5 @@ export default Ember.Controller.extend({
         }
     }
 });
+
+export default UploadController;

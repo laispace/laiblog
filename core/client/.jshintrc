@@ -6,6 +6,9 @@
     "-Notification",
     "$",
     "validator",
+    "ic",
+    "SimpleAuth",
+    "NProgress",
     "moment"
   ],
   "browser": true,

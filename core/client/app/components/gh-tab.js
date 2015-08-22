@@ -18,15 +18,14 @@ var Tab = Ember.Component.extend({
         this.get('tabsManager').select(this);
     },
 
-    willRender: function () {
-        // register the tabs with the tab manager
+    // Registration methods
+    registerWithTabs: function () {
         this.get('tabsManager').registerTab(this);
-    },
+    }.on('didInsertElement'),
 
-    willDestroyElement: function () {
-        // unregister the tabs with the tab manager
+    unregisterWithTabs: function () {
         this.get('tabsManager').unregisterTab(this);
-    }
+    }.on('willDestroyElement')
 });
 
 export default Tab;

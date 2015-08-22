@@ -1,14 +1,13 @@
 import AuthenticatedRoute from 'ghost/routes/authenticated';
 import styleBody from 'ghost/mixins/style-body';
 import CurrentUserSettings from 'ghost/mixins/current-user-settings';
+import loadingIndicator from 'ghost/mixins/loading-indicator';
 
-export default AuthenticatedRoute.extend(styleBody, CurrentUserSettings, {
-    titleToken: 'Settings - Labs',
+var LabsRoute = AuthenticatedRoute.extend(styleBody, loadingIndicator, CurrentUserSettings, {
+    titleToken: 'Labs',
 
     classNames: ['settings'],
-
-    beforeModel: function (transition) {
-        this._super(transition);
+    beforeModel: function () {
         return this.get('session.user')
             .then(this.transitionAuthor())
             .then(this.transitionEditor());
@@ -20,3 +19,5 @@ export default AuthenticatedRoute.extend(styleBody, CurrentUserSettings, {
         });
     }
 });
+
+export default LabsRoute;

@@ -62,40 +62,39 @@ var DEBUG = false, // TOGGLE THIS TO GET MORE SCREENSHOTS
 screens = {
     root: {
         url: 'ghost/',
-        linkSelector: '.gh-nav-main-content',
-        selector: '.gh-nav-main-content.active'
+        linkSelector: '.nav-content',
+        selector: '.nav-content.active'
     },
     content: {
-        url: 'ghost/',
-        linkSelector: '.gh-nav-main-content',
-        selector: '.gh-nav-main-content.active'
+        url: 'ghost/content/',
+        linkSelector: '.nav-content',
+        selector: '.nav-content.active'
     },
     editor: {
         url: 'ghost/editor/',
-        linkSelector: '.gh-nav-main-editor',
-        selector: '.gh-nav-main-editor.active'
+        linkSelector: '.nav-new',
+        selector: '#entry-title'
     },
-    about: {
-        url: 'ghost/about',
-        linkSelector: '.gh-nav-menu-about',
-        selector: '.gh-about-header'
-    },
-    'editor.editing': {
-        url: 'ghost/editor/',
-        linkSelector: 'a.post-edit',
-        selector: '.entry-markdown-content .markdown-editor'
+    settings: {
+        url: 'ghost/settings/',
+        linkSelector: '.nav-settings',
+        selector: '.nav-settings.active'
     },
     'settings.general': {
         url: 'ghost/settings/general',
-        selector: '.gh-nav-settings-general.active'
+        selector: '.settings-nav-general.active'
     },
-    team: {
-        url: 'ghost/team',
-        linkSelector: '.gh-nav-main-users',
-        selector: '.gh-nav-main-users.active'
+    'settings.about': {
+        url: 'ghost/settings/about',
+        selector: '.settings-nav-about.active'
     },
-    'team.user': {
-        url: 'ghost/team/test',
+    'settings.users': {
+        url: 'ghost/settings/users',
+        linkSelector: '.settings-nav-users a',
+        selector: '.settings-nav-users.active'
+    },
+    'settings.users.user': {
+        url: 'ghost/settings/users/test',
         linkSelector: '.user-menu-profile',
         selector: '.user-profile'
     },
@@ -106,9 +105,8 @@ screens = {
     'signin-authenticated': {
         url: 'ghost/signin/',
         // signin with authenticated user redirects to posts
-        selector: '.gh-nav-main-content.active'
+        selector: '.nav-content.active'
     },
-
     signout: {
         url: 'ghost/signout/',
         linkSelector: '.user-menu-signout',
@@ -120,21 +118,12 @@ screens = {
         selector: '.btn-blue'
     },
     setup: {
-        url: 'ghost/setup/one/',
+        url: 'ghost/setup/',
         selector: '.btn-green'
-    },
-    'setup.two': {
-        url: 'ghost/setup/two/',
-        linkSelector: '.btn-green',
-        selector: '.gh-flow-create'
-    },
-    'setup.three': {
-        url: 'ghost/setup/three/',
-        selector: '.gh-flow-invite'
     },
     'setup-authenticated': {
         url: 'ghost/setup/',
-        selector: '.gh-nav-main-content.active'
+        selector: '.nav-content.active'
     }
 };
 
@@ -201,13 +190,9 @@ casper.thenOpenAndWaitForPageLoad = function (screen, then, timeout) {
     timeout = timeout || casper.failOnTimeout(casper.test, 'Unable to load ' + screen);
 
     return casper.thenOpen(url + screens[screen].url).then(function () {
-        return casper.waitForScreenLoad(screen, then, timeout);
+        // Some screens fade in
+        return casper.waitForOpaque(screens[screen].selector, then, timeout, 10000);
     });
-};
-
-casper.waitForScreenLoad = function (screen, then, timeout) {
-    // Some screens fade in
-    return casper.waitForOpaque(screens[screen].selector, then, timeout, 10000);
 };
 
 casper.thenTransitionAndWaitForScreenLoad = function (screen, then, timeout) {
@@ -215,7 +200,8 @@ casper.thenTransitionAndWaitForScreenLoad = function (screen, then, timeout) {
     timeout = timeout || casper.failOnTimeout(casper.test, 'Unable to load ' + screen);
 
     return casper.thenClick(screens[screen].linkSelector).then(function () {
-        return casper.waitForScreenLoad(screen, then, timeout);
+        // Some screens fade in
+        return casper.waitForOpaque(screens[screen].selector, then, timeout, 10000);
     });
 };
 
@@ -347,23 +333,23 @@ CasperTest = (function () {
     });
 
     // Wrapper around `casper.test.begin`
-    function begin(testName, expect, suite, doNotAutoLogin, doNotRunSetup) {
+    function begin(testName, expect, suite, doNotAutoLogin) {
         _beforeDoneHandler = _noop;
 
         var runTest = function (test) {
             test.filename = testName.toLowerCase().replace(/ /g, '-').concat('.png');
 
             casper.start('about:blank').viewport(1280, 1024);
-            // Only call register once for the lifetime of CasperTest
-            if (!_isUserRegistered && !doNotRunSetup) {
-                CasperTest.Routines.signout.run();
-                CasperTest.Routines.setup.run();
-                CasperTest.Routines.signout.run();
-
-                _isUserRegistered = true;
-            }
 
             if (!doNotAutoLogin) {
+                // Only call register once for the lifetime of CasperTest
+                if (!_isUserRegistered) {
+                    CasperTest.Routines.signout.run();
+                    CasperTest.Routines.setup.run();
+
+                    _isUserRegistered = true;
+                }
+
                 /* Ensure we're logged out at the start of every test or we may get
                  unexpected failures. */
                 CasperTest.Routines.signout.run();
@@ -404,16 +390,18 @@ CasperTest = (function () {
 
 CasperTest.Routines = (function () {
     function setup() {
-        casper.thenOpenAndWaitForPageLoad('setup.two', function then() {
+        casper.thenOpenAndWaitForPageLoad('setup', function then() {
             casper.captureScreenshot('setting_up1.png');
 
-            casper.fillAndAdd('#setup', newSetup);
+            casper.waitForOpaque('.setup-box', function then() {
+                this.fillAndAdd('#setup', newSetup);
+            });
 
             casper.captureScreenshot('setting_up2.png');
 
-            casper.waitForSelectorTextChange('.gh-alert-success', function onSuccess() {
+            casper.waitForSelectorTextChange('.notification-error', function onSuccess() {
                 var errorText = casper.evaluate(function () {
-                    return document.querySelector('.gh-alert').innerText;
+                    return document.querySelector('.notification-error').innerText;
                 });
                 casper.echoConcise('Setup failed. Error text: ' + errorText);
             }, function onTimeout() {
@@ -426,7 +414,7 @@ CasperTest.Routines = (function () {
 
     function signin() {
         casper.thenOpenAndWaitForPageLoad('signin', function then() {
-            casper.waitForOpaque('.gh-signin', function then() {
+            casper.waitForOpaque('.login-box', function then() {
                 casper.captureScreenshot('signing_in.png');
                 this.fillAndSave('#login', user);
                 casper.captureScreenshot('signing_in2.png');
@@ -469,6 +457,8 @@ CasperTest.Routines = (function () {
         casper.thenOpenAndWaitForPageLoad('editor', function createTestPost() {
             casper.sendKeys('#entry-title', testPost.title);
             casper.writeContentToEditor(testPost.html);
+            casper.sendKeys('#entry-tags input.tag-input', 'TestTag');
+            casper.sendKeys('#entry-tags input.tag-input', casper.page.event.key.Enter);
         });
 
         casper.waitForSelectorTextChange('.entry-preview .rendered-markdown');

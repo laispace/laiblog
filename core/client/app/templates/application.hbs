@@ -1,23 +1,16 @@
-{{#gh-app showSettingsMenu=showSettingsMenu}}
-    <a class="sr-only sr-only-focusable" href="#gh-main">Skip to main content</a>
+<a class="sr-only sr-only-focusable" href="#gh-main">Skip to main content</a>
 
-    {{gh-alerts notify="topNotificationChange"}}
+{{#unless hideNav}}
+    {{partial "navbar"}}
+{{/unless}}
 
-    <div class="gh-viewport {{if autoNav 'gh-autonav'}} {{if showSettingsMenu 'settings-menu-expanded'}} {{if showMobileMenu 'mobile-menu-expanded'}}">
-        {{#unless signedOut}}
-            {{gh-nav-menu open=autoNavOpen onMouseEnter="openAutoNav" toggleMaximise="toggleAutoNav" openModal="openModal"}}
-        {{/unless}}
+{{gh-notifications location="top" notify="topNotificationChange"}}
 
-        {{#gh-main onMouseEnter="closeAutoNav" data-notification-count=topNotificationCount}}
-            {{outlet}}
-        {{/gh-main}}
+<main id="gh-main" class="viewport" role="main" data-notification-count={{topNotificationCount}}>
+    {{outlet}}
+    {{gh-notifications location="bottom"}}
+</main>
 
+{{outlet "modal"}}
 
-        {{gh-notifications}}
-
-        {{gh-content-cover onClick="closeMenus" onMouseEnter="closeAutoNav"}}
-
-        {{outlet "modal"}}
-        {{outlet "settings-menu"}}
-    </div>{{!gh-viewport}}
-{{/gh-app}}
+{{outlet "settings-menu"}}

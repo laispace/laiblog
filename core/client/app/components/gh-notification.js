@@ -1,28 +1,27 @@
 import Ember from 'ember';
 
-export default Ember.Component.extend({
-    tagName: 'article',
-    classNames: ['gh-notification', 'gh-notification-passive'],
-    classNameBindings: ['typeClass'],
-
-    message: null,
-
-    notifications: Ember.inject.service(),
+var NotificationComponent = Ember.Component.extend({
+    classNames: ['js-bb-notification'],
 
     typeClass: Ember.computed(function () {
         var classes = '',
             message = this.get('message'),
-            type = Ember.get(message, 'type'),
-            typeMapping;
+            type,
+            dismissible;
 
-        typeMapping = {
-            success: 'green',
-            error: 'red',
-            warn: 'yellow'
-        };
+        // Check to see if we're working with a DS.Model or a plain JS object
+        if (typeof message.toJSON === 'function') {
+            type = message.get('type');
+            dismissible = message.get('dismissible');
+        } else {
+            type = message.type;
+            dismissible = message.dismissible;
+        }
 
-        if (typeMapping[type] !== undefined) {
-            classes += 'gh-notification-' + typeMapping[type];
+        classes += 'notification-' + type;
+
+        if (type === 'success' && dismissible !== false) {
+            classes += ' notification-passive';
         }
 
         return classes;
@@ -33,18 +32,17 @@ export default Ember.Component.extend({
 
         self.$().on('animationend webkitAnimationEnd oanimationend MSAnimationEnd', function (event) {
             if (event.originalEvent.animationName === 'fade-out') {
-                self.get('notifications').closeNotification(self.get('message'));
+                self.notifications.removeObject(self.get('message'));
             }
         });
     },
 
-    willDestroyElement: function () {
-        this.$().off('animationend webkitAnimationEnd oanimationend MSAnimationEnd');
-    },
-
     actions: {
         closeNotification: function () {
-            this.get('notifications').closeNotification(this.get('message'));
+            var self = this;
+            self.notifications.closeNotification(self.get('message'));
         }
     }
 });
+
+export default NotificationComponent;

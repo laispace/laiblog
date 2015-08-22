@@ -1,8 +1,9 @@
 import Ember from 'ember';
 import DS from 'ember-data';
 import ValidationEngine from 'ghost/mixins/validation-engine';
+import NProgressSaveMixin from 'ghost/mixins/nprogress-save';
 
-export default DS.Model.extend(ValidationEngine, {
+var Post = DS.Model.extend(NProgressSaveMixin, ValidationEngine, {
     validationType: 'post',
 
     uuid: DS.attr('string'),
@@ -27,9 +28,6 @@ export default DS.Model.extend(ValidationEngine, {
     created_by: DS.attr(),
     tags: DS.hasMany('tag', {embedded: 'always'}),
     url: DS.attr('string'),
-
-    config: Ember.inject.service(),
-    ghostPaths: Ember.inject.service('ghost-paths'),
 
     absoluteUrl: Ember.computed('url', 'ghostPaths.url', 'config.blogUrl', function () {
         var blogUrl = this.get('config.blogUrl'),
@@ -72,3 +70,5 @@ export default DS.Model.extend(ValidationEngine, {
     }
 
 });
+
+export default Post;

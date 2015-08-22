@@ -1,8 +1,5 @@
 import Ember from 'ember';
-
-export default Ember.Controller.extend({
-    notifications: Ember.inject.service(),
-
+var DeleteUserController = Ember.Controller.extend({
     userPostCount: Ember.computed('model.id', function () {
         var promise,
             query = {
@@ -30,9 +27,10 @@ export default Ember.Controller.extend({
 
             user.destroyRecord().then(function () {
                 self.store.unloadAll('post');
-                self.transitionToRoute('team');
+                self.transitionToRoute('settings.users');
+                self.notifications.showSuccess('The user has been deleted.', {delayed: true});
             }, function () {
-                self.get('notifications').showAlert('The user could not be deleted. Please try again.', {type: 'error'});
+                self.notifications.showError('The user could not be deleted. Please try again.');
             });
         },
 
@@ -52,3 +50,5 @@ export default Ember.Controller.extend({
         }
     }
 });
+
+export default DeleteUserController;

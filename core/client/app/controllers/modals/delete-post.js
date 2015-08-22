@@ -1,9 +1,5 @@
 import Ember from 'ember';
-
-export default Ember.Controller.extend({
-    dropdown: Ember.inject.service(),
-    notifications: Ember.inject.service(),
-
+var DeletePostController = Ember.Controller.extend({
     actions: {
         confirmAccept: function () {
             var self = this,
@@ -15,8 +11,9 @@ export default Ember.Controller.extend({
             model.destroyRecord().then(function () {
                 self.get('dropdown').closeDropdowns();
                 self.transitionToRoute('posts.index');
+                self.notifications.showSuccess('Your post has been deleted.', {delayed: true});
             }, function () {
-                self.get('notifications').showAlert('Your post could not be deleted. Please try again.', {type: 'error'});
+                self.notifications.showError('Your post could not be deleted. Please try again.');
             });
         },
 
@@ -36,3 +33,5 @@ export default Ember.Controller.extend({
         }
     }
 });
+
+export default DeletePostController;

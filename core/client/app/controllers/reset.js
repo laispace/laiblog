@@ -1,17 +1,14 @@
 import Ember from 'ember';
-import {request as ajax} from 'ic-ajax';
+import ajax from 'ghost/utils/ajax';
 import ValidationEngine from 'ghost/mixins/validation-engine';
 
-export default Ember.Controller.extend(ValidationEngine, {
+var ResetController = Ember.Controller.extend(ValidationEngine, {
     newPassword: '',
     ne2Password: '',
     token: '',
     submitting: false,
 
     validationType: 'reset',
-
-    ghostPaths: Ember.inject.service('ghost-paths'),
-    notifications: Ember.inject.service(),
 
     email: Ember.computed('token', function () {
         // The token base64 encodes the email (and some other stuff),
@@ -33,8 +30,8 @@ export default Ember.Controller.extend(ValidationEngine, {
             var credentials = this.getProperties('newPassword', 'ne2Password', 'token'),
                 self = this;
 
-            this.validate().then(function () {
-                self.toggleProperty('submitting');
+            this.toggleProperty('submitting');
+            this.validate({format: false}).then(function () {
                 ajax({
                     url: self.get('ghostPaths.url').api('authentication', 'passwordreset'),
                     type: 'PUT',
@@ -43,16 +40,21 @@ export default Ember.Controller.extend(ValidationEngine, {
                     }
                 }).then(function (resp) {
                     self.toggleProperty('submitting');
-                    self.get('notifications').showAlert(resp.passwordreset[0].message, {type: 'warn', delayed: true});
+                    self.notifications.showSuccess(resp.passwordreset[0].message, true);
                     self.get('session').authenticate('simple-auth-authenticator:oauth2-password-grant', {
                         identification: self.get('email'),
                         password: credentials.newPassword
                     });
                 }).catch(function (response) {
-                    self.get('notifications').showAPIError(response);
+                    self.notifications.showAPIError(response);
                     self.toggleProperty('submitting');
                 });
+            }).catch(function (error) {
+                self.toggleProperty('submitting');
+                self.notifications.showErrors(error);
             });
         }
     }
 });
+
+export default ResetController;

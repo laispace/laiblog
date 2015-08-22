@@ -62,7 +62,7 @@ var EditorScroll = Ember.Mixin.create({
      */
     scrollHandler: function () {
         this.set('scrollThrottle', Ember.run.throttle(this, function () {
-            this.sendAction('updateScrollInfo', this.getScrollInfo());
+            this.set('scrollInfo', this.getScrollInfo());
         }, 10));
     },
 
@@ -79,28 +79,16 @@ var EditorScroll = Ember.Mixin.create({
             target: Ember.$('.js-entry-markdown'),
             offset: 10
         }));
-    },
+    }.on('didInsertElement'),
 
     /**
-     * once the element has been removed from the DOM unbind from the events which control scroll behaviour
+     * once the element is in the DOM unbind from the events which control scroll behaviour
      */
     detachScrollHandlers: function () {
         this.$().off('keypress');
         this.$().off('scroll');
         Ember.run.cancel(this.get('scrollThrottle'));
-    },
-
-    didInsertElement: function () {
-        this._super();
-
-        this.attachScrollHandlers();
-    },
-
-    willDestroyElement: function () {
-        this._super();
-
-        this.detachScrollHandlers();
-    }
+    }.on('willDestroyElement')
 });
 
 export default EditorScroll;

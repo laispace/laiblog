@@ -2,21 +2,17 @@ import Ember from 'ember';
 import uploader from 'ghost/assets/lib/uploader';
 
 var Preview = Ember.Component.extend({
-    config: Ember.inject.service(),
-
     didInsertElement: function () {
         this.set('scrollWrapper', this.$().closest('.entry-preview-content'));
         Ember.run.scheduleOnce('afterRender', this, this.dropzoneHandler);
     },
 
-    adjustScrollPosition: Ember.observer('scrollPosition', function () {
+    adjustScrollPosition: function () {
         var scrollWrapper = this.get('scrollWrapper'),
             scrollPosition = this.get('scrollPosition');
 
-        if (scrollWrapper) {
-            scrollWrapper.scrollTop(scrollPosition);
-        }
-    }),
+        scrollWrapper.scrollTop(scrollPosition);
+    }.observes('scrollPosition'),
 
     dropzoneHandler: function () {
         var dropzones = $('.js-drop-zone');
@@ -32,14 +28,14 @@ var Preview = Ember.Component.extend({
         dropzones.on('uploadsuccess', Ember.run.bind(this, 'sendAction', 'uploadSuccess'));
 
         // Set the current height so we can listen
-        this.sendAction('updateHeight', this.$().height());
+        this.set('height', this.$().height());
     },
 
     // fire off 'enable' API function from uploadManager
     // might need to make sure markdown has been processed first
-    reInitDropzones: Ember.observer('markdown', function () {
+    reInitDropzones: function () {
         Ember.run.scheduleOnce('afterRender', this, this.dropzoneHandler);
-    })
+    }.observes('markdown')
 });
 
 export default Preview;

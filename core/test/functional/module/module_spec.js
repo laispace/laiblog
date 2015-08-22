@@ -13,7 +13,9 @@ describe('Module', function () {
                 should.exist(ghostServer);
 
                 done();
-            }).catch(done);
+            }).catch(function (e) {
+                done(e);
+            });
         });
 
         it('should expose an express instance', function (done) {
@@ -22,7 +24,9 @@ describe('Module', function () {
                 should.exist(ghostServer.rootApp);
 
                 done();
-            }).catch(done);
+            }).catch(function (e) {
+                done(e);
+            });
         });
 
         it('should expose configuration values', function (done) {
@@ -35,7 +39,9 @@ describe('Module', function () {
                 should.equal(ghostServer.config.paths.subdir, '');
 
                 done();
-            }).catch(done);
+            }).catch(function (e) {
+                done(e);
+            });
         });
 
         it('should have start/stop/restart functions', function (done) {
@@ -46,7 +52,9 @@ describe('Module', function () {
                 ghostServer.stop.should.be.a.Function;
 
                 done();
-            }).catch(done);
+            }).catch(function (e) {
+                done(e);
+            });
         });
     });
 });

@@ -1,48 +1,32 @@
 import Ember from 'ember';
-
-export default Ember.Controller.extend({
-    dropdown: Ember.inject.service(),
-
+var ApplicationController = Ember.Controller.extend({
     // jscs: disable
-    signedOut: Ember.computed.match('currentPath', /(signin|signup|setup|reset)/),
+    hideNav: Ember.computed.match('currentPath', /(error|signin|signup|setup|forgotten|reset)/),
     // jscs: enable
 
     topNotificationCount: 0,
-    showMobileMenu: false,
+    showGlobalMobileNav: false,
     showSettingsMenu: false,
 
-    autoNav: false,
-    autoNavOpen: Ember.computed('autoNav', {
-        get: function () {
-            return false;
-        },
-        set: function (key, value) {
-            if (this.get('autoNav')) {
-                return value;
-            }
-            return false;
-        }
+    userImage: Ember.computed('session.user.image', function () {
+        return this.get('session.user.image') || this.get('ghostPaths.url').asset('/shared/img/user-image.png');
+    }),
+
+    userImageBackground: Ember.computed('userImage', function () {
+        return `background-image: url(${this.get('userImage')})`.htmlSafe();
+    }),
+
+    userImageAlt: Ember.computed('session.user.name', function () {
+        var name = this.get('session.user.name');
+
+        return (name) ? name + '\'s profile picture' : 'Profile picture';
     }),
 
     actions: {
         topNotificationChange: function (count) {
             this.set('topNotificationCount', count);
-        },
-
-        toggleAutoNav: function () {
-            this.toggleProperty('autoNav');
-        },
-
-        openAutoNav: function () {
-            this.set('autoNavOpen', true);
-        },
-
-        closeAutoNav: function () {
-            this.set('autoNavOpen', false);
-        },
-
-        closeMobileMenu: function () {
-            this.set('showMobileMenu', false);
         }
     }
 });
+
+export default ApplicationController;

@@ -21,7 +21,10 @@ describe('Slug API', function () {
         }).then(function (token) {
             accesstoken = token;
             done();
-        }).catch(done);
+        }).catch(function (e) {
+            console.log('Ghost Error: ', e);
+            console.log(e.stack);
+        });
     });
 
     after(function (done) {

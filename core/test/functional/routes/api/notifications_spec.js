@@ -20,7 +20,10 @@ describe('Notifications API', function () {
         }).then(function (token) {
             accesstoken = token;
             done();
-        }).catch(done);
+        }).catch(function (e) {
+            console.log('Ghost Error: ', e);
+            console.log(e.stack);
+        });
     });
 
     after(function (done) {
@@ -55,7 +58,7 @@ describe('Notifications API', function () {
 
                     jsonResponse.notifications[0].type.should.equal(newNotification.type);
                     jsonResponse.notifications[0].message.should.equal(newNotification.message);
-                    jsonResponse.notifications[0].status.should.equal('alert');
+                    jsonResponse.notifications[0].status.should.equal('persistent');
 
                     done();
                 });
@@ -66,7 +69,7 @@ describe('Notifications API', function () {
         var newNotification = {
             type: 'info',
             message: 'test notification',
-            status: 'alert'
+            status: 'persistent'
         };
 
         it('deletes a notification', function (done) {

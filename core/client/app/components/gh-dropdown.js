@@ -1,10 +1,8 @@
 import Ember from 'ember';
 import DropdownMixin from 'ghost/mixins/dropdown-mixin';
 
-export default Ember.Component.extend(DropdownMixin, {
-    classNames: 'dropdown',
-    classNameBindings: ['fadeIn:fade-in-scale:fade-out', 'isOpen:open:closed'],
-
+var GhostDropdown = Ember.Component.extend(DropdownMixin, {
+    classNames: 'ghost-dropdown',
     name: null,
     closeOnClick: false,
 
@@ -19,7 +17,7 @@ export default Ember.Component.extend(DropdownMixin, {
         return this.get('isOpen') && !this.get('closing');
     }),
 
-    dropdown: Ember.inject.service(),
+    classNameBindings: ['fadeIn:fade-in-scale:fade-out', 'isOpen:open:closed'],
 
     open: function () {
         this.set('isOpen', true);
@@ -90,3 +88,5 @@ export default Ember.Component.extend(DropdownMixin, {
         dropdownService.off('toggle', this, this.toggle);
     }
 });
+
+export default GhostDropdown;
