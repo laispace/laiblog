@@ -22,10 +22,7 @@ describe('Post API', function () {
         }).then(function (token) {
             accesstoken = token;
             done();
-        }).catch(function (e) {
-            console.log('Ghost Error: ', e);
-            console.log(e.stack);
-        });
+        }).catch(done);
     });
 
     after(function (done) {
@@ -39,7 +36,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -63,7 +60,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/?staticPages=all'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -87,7 +84,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/?staticPages=all&status=all'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -109,7 +106,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/?staticPages=true'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -128,10 +125,10 @@ describe('Post API', function () {
         });
 
         it('can retrieve just featured posts', function (done) {
-            request.get(testUtils.API.getApiQuery('posts/?featured=true'))
+            request.get(testUtils.API.getApiQuery('posts/?filter=featured:true'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -153,7 +150,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/?status=draft'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -178,7 +175,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -207,7 +204,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/slug/welcome-to-ghost/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -235,7 +232,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/?include=author,tags,created_by'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -261,7 +258,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/3/?include=next,previous'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -287,7 +284,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/7/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -309,7 +306,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/99/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(404)
                 .end(function (err, res) {
                     if (err) {
@@ -329,7 +326,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/5/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(404)
                 .end(function (err, res) {
                     if (err) {
@@ -349,7 +346,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/8/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(404)
                 .end(function (err, res) {
                     if (err) {
@@ -379,7 +376,7 @@ describe('Post API', function () {
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .send(newPost)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(201)
                 .end(function (err, res) {
                     if (err) {
@@ -403,7 +400,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(draftPost)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -430,7 +427,7 @@ describe('Post API', function () {
                                 .set('Authorization', 'Bearer ' + accesstoken)
                                 .send(publishedPost)
                                 .expect('Content-Type', /json/)
-                                .expect('Cache-Control', testUtils.cacheRules['private'])
+                                .expect('Cache-Control', testUtils.cacheRules.private)
                                 .expect(200)
                                 .end(function (err, res) {
                                     if (err) {
@@ -467,7 +464,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/?include=tags'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -484,7 +481,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -513,7 +510,7 @@ describe('Post API', function () {
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .send(newPost)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(201)
                 .end(function (err, res) {
                     if (err) {
@@ -533,7 +530,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(draftPost)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -558,7 +555,7 @@ describe('Post API', function () {
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .send(newPost)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(201)
                 .end(function (err, res) {
                     if (err) {
@@ -579,7 +576,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(draftPost)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -597,7 +594,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/?include=tags'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -613,7 +610,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -635,7 +632,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/7/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -651,7 +648,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -673,7 +670,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/7/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -689,7 +686,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(422)
                         .end(function (err, res) {
                             if (err) {
@@ -709,7 +706,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     /*jshint unused:false*/
                     if (err) {
@@ -721,7 +718,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + 'invalidtoken')
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(401)
                         .end(function (err, res) {
                             /*jshint unused:false*/
@@ -738,7 +735,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -751,7 +748,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(400)
                         .end(function (err, res) {
                             /*jshint unused:false*/
@@ -768,7 +765,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/?include=tags'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -784,7 +781,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -810,7 +807,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/1/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -825,7 +822,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(404)
                         .end(function (err, res) {
                             if (err) {
@@ -849,7 +846,7 @@ describe('Post API', function () {
             request.del(testUtils.API.getApiQuery('posts/' + deletePostId + '/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -870,7 +867,7 @@ describe('Post API', function () {
             request.del(testUtils.API.getApiQuery('posts/99/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(404)
                 .end(function (err, res) {
                     if (err) {
@@ -895,7 +892,7 @@ describe('Post API', function () {
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .send(newPost)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(201)
                 .end(function (err, res) {
                     if (err) {
@@ -912,7 +909,7 @@ describe('Post API', function () {
                     request.del(testUtils.API.getApiQuery('posts/' + draftPost.posts[0].id + '/'))
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .expect(200)
                         .end(function (err, res) {
                             if (err) {
@@ -934,7 +931,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('settings/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -947,7 +944,7 @@ describe('Post API', function () {
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .send(jsonResponse)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .end(function (err, res) {
                             /*jshint unused:false*/
                             if (err) {
@@ -962,7 +959,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('settings/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -974,7 +971,7 @@ describe('Post API', function () {
                     request.put(testUtils.API.getApiQuery('settings/'))
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .send(jsonResponse)
                         .end(function (err, res) {
                             /*jshint unused:false*/
@@ -992,7 +989,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/2/'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .expect(200)
                 .end(function (err, res) {
                     if (err) {
@@ -1015,7 +1012,7 @@ describe('Post API', function () {
             request.get(testUtils.API.getApiQuery('posts/2/?include=tags'))
                 .set('Authorization', 'Bearer ' + accesstoken)
                 .expect('Content-Type', /json/)
-                .expect('Cache-Control', testUtils.cacheRules['private'])
+                .expect('Cache-Control', testUtils.cacheRules.private)
                 .end(function (err, res) {
                     if (err) {
                         return done(err);
@@ -1030,7 +1027,7 @@ describe('Post API', function () {
                     request.put(testUtils.API.getApiQuery('posts/2/'))
                         .set('Authorization', 'Bearer ' + accesstoken)
                         .expect('Content-Type', /json/)
-                        .expect('Cache-Control', testUtils.cacheRules['private'])
+                        .expect('Cache-Control', testUtils.cacheRules.private)
                         .send(jsonResponse)
                         .expect(200)
                         .end(function (err, res) {

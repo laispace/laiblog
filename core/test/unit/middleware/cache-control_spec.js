@@ -50,25 +50,25 @@ describe('Middleware: cacheControl', function () {
     });
 
     it('will not get confused between serving public and private', function (done) {
-        var public = middleware.cacheControl('public'),
-            private = middleware.cacheControl('private');
+        var publicCC = middleware.cacheControl('public'),
+            privateCC = middleware.cacheControl('private');
 
-        public(null, res, function () {
+        publicCC(null, res, function () {
             res.set.calledOnce.should.be.true;
             res.set.calledWith({'Cache-Control': 'public, max-age=0'});
 
-            private(null, res, function () {
+            privateCC(null, res, function () {
                 res.set.calledTwice.should.be.true;
                 res.set.calledWith({
                     'Cache-Control':
                         'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'
                 });
 
-                public(null, res, function () {
+                publicCC(null, res, function () {
                     res.set.calledThrice.should.be.true;
                     res.set.calledWith({'Cache-Control': 'public, max-age=0'});
 
-                    private(null, res, function () {
+                    privateCC(null, res, function () {
                         res.set.calledWith({
                             'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'
                         });
@@ -77,18 +77,18 @@ describe('Middleware: cacheControl', function () {
                 });
             });
         });
+    });
 
-        it('will override public with private for private blogs', function (done) {
-            res.isPrivateBlog = true;
-            middleware.cacheControl('public')(null, res, function (a) {
-                should.not.exist(a);
-                res.set.calledOnce.should.be.true;
-                res.set.calledWith({
-                    'Cache-Control':
-                        'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'
-                });
-                done();
+    it('will override public with private for private blogs', function (done) {
+        res.isPrivateBlog = true;
+        middleware.cacheControl('public')(null, res, function (a) {
+            should.not.exist(a);
+            res.set.calledOnce.should.be.true;
+            res.set.calledWith({
+                'Cache-Control':
+                    'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'
             });
+            done();
         });
     });
 });

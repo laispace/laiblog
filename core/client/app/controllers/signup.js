@@ -1,25 +1,59 @@
 import Ember from 'ember';
-import ajax from 'ghost/utils/ajax';
+import {request as ajax} from 'ic-ajax';
 import ValidationEngine from 'ghost/mixins/validation-engine';
 
-var SignupController = Ember.Controller.extend(ValidationEngine, {
-    submitting: false,
+const {Controller, RSVP, inject} = Ember;
 
+export default Controller.extend(ValidationEngine, {
     // ValidationEngine settings
     validationType: 'signup',
 
+    submitting: false,
+    flowErrors: '',
+    image: null,
+
+    ghostPaths: inject.service('ghost-paths'),
+    config: inject.service(),
+    notifications: inject.service(),
+    session: inject.service(),
+
+    sendImage() {
+        let image = this.get('image');
+
+        this.get('session.user').then((user) => {
+            return new RSVP.Promise((resolve, reject) => {
+                image.formData = {};
+                image.submit()
+                    .success((response) => {
+                        user.image = response;
+                        ajax({
+                            url: this.get('ghostPaths.url').api('users', user.id.toString()),
+                            type: 'PUT',
+                            data: {
+                                users: [user]
+                            }
+                        }).then(resolve).catch(reject);
+                    })
+                    .error(reject);
+            });
+        });
+    },
+
     actions: {
-        signup: function () {
-            var self = this,
-                model = this.get('model'),
-                data = model.getProperties('name', 'email', 'password', 'token');
+        signup() {
+            let model = this.get('model');
+            let setupProperties = ['name', 'email', 'password', 'token'];
+            let data = model.getProperties(setupProperties);
+            let image = this.get('image');
+            let notifications = this.get('notifications');
 
-            self.notifications.closePassive();
+            this.set('flowErrors', '');
 
-            this.toggleProperty('submitting');
-            this.validate({format: false}).then(function () {
+            this.get('hasValidated').addObjects(setupProperties);
+            this.validate().then(() => {
+                this.toggleProperty('submitting');
                 ajax({
-                    url: self.get('ghostPaths.url').api('authentication', 'invitation'),
+                    url: this.get('ghostPaths.url').api('authentication', 'invitation'),
                     type: 'POST',
                     dataType: 'json',
                     data: {
@@ -30,21 +64,29 @@ var SignupController = Ember.Controller.extend(ValidationEngine, {
                             token: data.token
                         }]
                     }
-                }).then(function () {
-                    self.get('session').authenticate('simple-auth-authenticator:oauth2-password-grant', {
-                        identification: self.get('model.email'),
-                        password: self.get('model.password')
+                }).then(() => {
+                    this.get('session').authenticate('authenticator:oauth2', this.get('model.email'), this.get('model.password')).then(() => {
+                        if (image) {
+                            this.sendImage();
+                        }
+                    }).catch((resp) => {
+                        notifications.showAPIError(resp, {key: 'signup.complete'});
                     });
-                }, function (resp) {
-                    self.toggleProperty('submitting');
-                    self.notifications.showAPIError(resp);
+                }).catch((resp) => {
+                    this.toggleProperty('submitting');
+                    if (resp && resp.jqXHR && resp.jqXHR.responseJSON && resp.jqXHR.responseJSON.errors) {
+                        this.set('flowErrors', resp.jqXHR.responseJSON.errors[0].message);
+                    } else {
+                        notifications.showAPIError(resp, {key: 'signup.complete'});
+                    }
                 });
-            }, function (errors) {
-                self.toggleProperty('submitting');
-                self.notifications.showErrors(errors);
+            }).catch(() => {
+                this.set('flowErrors', 'Please fill out the form to complete your sign-up');
             });
+        },
+
+        setImage(image) {
+            this.set('image', image);
         }
     }
 });
-
-export default SignupController;

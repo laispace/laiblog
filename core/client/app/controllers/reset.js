@@ -1,23 +1,30 @@
 import Ember from 'ember';
-import ajax from 'ghost/utils/ajax';
+import {request as ajax} from 'ic-ajax';
 import ValidationEngine from 'ghost/mixins/validation-engine';
 
-var ResetController = Ember.Controller.extend(ValidationEngine, {
+const {Controller, computed, inject} = Ember;
+
+export default Controller.extend(ValidationEngine, {
     newPassword: '',
     ne2Password: '',
     token: '',
     submitting: false,
+    flowErrors: '',
 
     validationType: 'reset',
 
-    email: Ember.computed('token', function () {
+    ghostPaths: inject.service('ghost-paths'),
+    notifications: inject.service(),
+    session: inject.service(),
+
+    email: computed('token', function () {
         // The token base64 encodes the email (and some other stuff),
         // each section is divided by a '|'. Email comes second.
         return atob(this.get('token')).split('|')[1];
     }),
 
     // Used to clear sensitive information
-    clearData: function () {
+    clearData() {
         this.setProperties({
             newPassword: '',
             ne2Password: '',
@@ -26,35 +33,40 @@ var ResetController = Ember.Controller.extend(ValidationEngine, {
     },
 
     actions: {
-        submit: function () {
-            var credentials = this.getProperties('newPassword', 'ne2Password', 'token'),
-                self = this;
+        submit() {
+            let credentials = this.getProperties('newPassword', 'ne2Password', 'token');
 
-            this.toggleProperty('submitting');
-            this.validate({format: false}).then(function () {
+            this.set('flowErrors', '');
+            this.get('hasValidated').addObjects(['newPassword', 'ne2Password']);
+            this.validate().then(() => {
+                this.toggleProperty('submitting');
                 ajax({
-                    url: self.get('ghostPaths.url').api('authentication', 'passwordreset'),
+                    url: this.get('ghostPaths.url').api('authentication', 'passwordreset'),
                     type: 'PUT',
                     data: {
                         passwordreset: [credentials]
                     }
-                }).then(function (resp) {
-                    self.toggleProperty('submitting');
-                    self.notifications.showSuccess(resp.passwordreset[0].message, true);
-                    self.get('session').authenticate('simple-auth-authenticator:oauth2-password-grant', {
-                        identification: self.get('email'),
-                        password: credentials.newPassword
-                    });
-                }).catch(function (response) {
-                    self.notifications.showAPIError(response);
-                    self.toggleProperty('submitting');
+                }).then((resp) => {
+                    this.toggleProperty('submitting');
+                    this.get('notifications').showAlert(resp.passwordreset[0].message, {type: 'warn', delayed: true, key: 'password.reset'});
+                    this.get('session').authenticate('authenticator:oauth2', this.get('email'), credentials.newPassword);
+                }).catch((response) => {
+                    this.get('notifications').showAPIError(response, {key: 'password.reset'});
+                    this.toggleProperty('submitting');
                 });
-            }).catch(function (error) {
-                self.toggleProperty('submitting');
-                self.notifications.showErrors(error);
+            }).catch((error) => {
+                if (this.get('errors.newPassword')) {
+                    this.set('flowErrors', this.get('errors.newPassword')[0].message);
+                }
+
+                if (this.get('errors.ne2Password')) {
+                    this.set('flowErrors', this.get('errors.ne2Password')[0].message);
+                }
+
+                if (this.get('errors.length') === 0) {
+                    throw error;
+                }
             });
         }
     }
 });
-
-export default ResetController;

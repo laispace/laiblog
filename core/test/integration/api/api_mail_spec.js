@@ -4,6 +4,7 @@ var testUtils       = require('../../utils'),
     should          = require('should'),
     config          = require('../../../server/config'),
     mailer          = require('../../../server/mail'),
+	i18n             = require('../../../../core/server/i18n'),
 
     // Stuff we are testing
     MailAPI         = require('../../../server/api/mail'),
@@ -36,6 +37,7 @@ var testUtils       = require('../../utils'),
             options: {}
         }]
     };
+i18n.init();
 
 describe('Mail API', function () {
     before(testUtils.teardown);
@@ -50,7 +52,7 @@ describe('Mail API', function () {
                 /*jshint unused:false */
                 done();
             }).catch(function (error) {
-                error.message.should.eql('Email Error: No e-mail transport configured.');
+                error.message.should.eql('Error: No email transport configured.');
                 error.errorType.should.eql('EmailError');
                 done();
             }).catch(done);
@@ -61,7 +63,7 @@ describe('Mail API', function () {
                 /*jshint unused:false */
                 done();
             }).catch(function (error) {
-                error.message.should.eql('Email Error: No e-mail transport configured.');
+                error.message.should.eql('Error: No email transport configured.');
                 error.errorType.should.eql('EmailError');
                 done();
             }).catch(done);
@@ -82,7 +84,7 @@ describe('Mail API', function () {
             return MailAPI.send(mailDataNoDomain, testUtils.context.internal).then(function () {
                 done(new Error('Error message not shown.'));
             }, function (error) {
-                error.message.should.startWith('Email Error: Failed sending email');
+                error.message.should.startWith('Error: Failed to send email');
                 error.errorType.should.eql('EmailError');
                 done();
             }).catch(done);
@@ -94,7 +96,7 @@ describe('Mail API', function () {
             MailAPI.send(mailDataNoServer, testUtils.context.internal).then(function () {
                 done(new Error('Error message not shown.'));
             }, function (error) {
-                error.message.should.eql('Email Error: Failed sending email.');
+                error.message.should.eql('Error: Failed to send email.');
                 error.errorType.should.eql('EmailError');
                 done();
             }).catch(done);
@@ -106,7 +108,7 @@ describe('Mail API', function () {
             MailAPI.send(mailDataIncomplete, testUtils.context.internal).then(function () {
                 done(new Error('Error message not shown.'));
             }, function (error) {
-                error.message.should.eql('Email Error: Incomplete message data.');
+                error.message.should.eql('Error: Incomplete message data.');
                 error.errorType.should.eql('EmailError');
                 done();
             }).catch(done);
@@ -140,7 +142,7 @@ describe('Mail API', function () {
                 console.log('res', response.mail[0]);
                 done(new Error('Stub did not error'));
             }, function (error) {
-                error.message.should.startWith('Email Error: Failed sending email: there is no mail server at this address');
+                error.message.should.startWith('Error: Failed to send email - no mail server found at');
                 error.errorType.should.eql('EmailError');
                 done();
             }).catch(done);
