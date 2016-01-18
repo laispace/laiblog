@@ -8,8 +8,8 @@ DATE_ALL=`date +%Y-%m-%d_%H.%M.%S`
 
 cd /data/sites/laiblog/
 
-# backuo ghost.db
-git add /data/sites/laiblog/content/data/ghost.db
+# backup content
+git add /data/sites/laiblog/content/
 
 git commit -m "auto backup"
 
