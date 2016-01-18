@@ -3,7 +3,6 @@ var _       = require('lodash'),
     config  = require('../../config'),
     schema  = require('../schema').tables,
     clients = require('./clients'),
-    i18n    = require('../../i18n'),
 
     dbConfig;
 
@@ -87,7 +86,7 @@ function getTables() {
         return clients[client].getTables();
     }
 
-    return Promise.reject(i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
+    return Promise.reject('No support for database client ' + client);
 }
 
 function getIndexes(table) {
@@ -98,7 +97,7 @@ function getIndexes(table) {
         return clients[client].getIndexes(table);
     }
 
-    return Promise.reject(i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
+    return Promise.reject('No support for database client ' + client);
 }
 
 function getColumns(table) {
@@ -109,7 +108,7 @@ function getColumns(table) {
         return clients[client].getColumns(table);
     }
 
-    return Promise.reject(i18n.t('notices.data.utils.index.noSupportForDatabase', {client: client}));
+    return Promise.reject('No support for database client ' + client);
 }
 
 function checkTables() {

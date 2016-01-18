@@ -2,7 +2,6 @@ var _            = require('lodash'),
     Promise      = require('bluebird'),
     fs           = require('fs-extra'),
     errors       = require('../../../errors'),
-    i18n         = require('../../../i18n'),
     JSONHandler;
 
 JSONHandler = {
@@ -24,7 +23,7 @@ JSONHandler = {
                 // if importData follows JSON-API format `{ db: [exportedData] }`
                 if (_.keys(importData).length === 1) {
                     if (!importData.db || !Array.isArray(importData.db)) {
-                        throw new Error(i18n.t('errors.data.importer.handlers.json.invalidJsonFormat'));
+                        throw new Error('Invalid JSON format, expected `{ db: [exportedData] }`');
                     }
 
                     importData = importData.db[0];
@@ -32,9 +31,8 @@ JSONHandler = {
 
                 return importData;
             } catch (e) {
-                errors.logError(e, i18n.t('errors.data.importer.handlers.json.apiDbImportContent'),
-                                i18n.t('errors.data.importer.handlers.json.checkImportJsonIsValid'));
-                return Promise.reject(new errors.BadRequestError(i18n.t('errors.data.importer.handlers.json.failedToParseImportJson')));
+                errors.logError(e, 'API DB import content', 'check that the import file is valid JSON.');
+                return Promise.reject(new errors.BadRequestError('Failed to parse the import JSON file.'));
             }
         });
     }

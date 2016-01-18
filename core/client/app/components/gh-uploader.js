@@ -36,14 +36,13 @@ export default Component.extend({
             this.$()[0].uploaderUi.reset();
         }
 
-        // re-init if we receive a new image
+        // re-init if we receive a new image but the uploader is blank
         // - handles back button navigating from blank image to populated image
-        // - handles navigating between populated images
-
         if (!isEmpty(newValue) && this.$()) {
-            this.$('.js-upload-target').attr('src', '');
-            this.$()[0].uploaderUi.reset();
-            this.$()[0].uploaderUi.initWithImage();
+            if (this.$('.js-upload-target').attr('src') === '') {
+                this.$()[0].uploaderUi.reset();
+                this.$()[0].uploaderUi.initWithImage();
+            }
         }
     },
 

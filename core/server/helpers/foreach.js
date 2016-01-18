@@ -5,14 +5,13 @@
 var hbs             = require('express-hbs'),
     _               = require('lodash'),
     errors          = require('../errors'),
-    i18n            = require('../i18n'),
 
     hbsUtils        = hbs.handlebars.Utils,
     foreach;
 
 foreach = function (context, options) {
     if (!options) {
-        errors.logWarn(i18n.t('warnings.helpers.foreach.iteratorNeeded'));
+        errors.logWarn('Need to pass an iterator to #foreach');
     }
 
     var fn = options.fn,

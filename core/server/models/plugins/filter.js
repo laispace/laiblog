@@ -1,7 +1,6 @@
 var _      = require('lodash'),
     errors = require('../../errors'),
     gql    = require('ghost-gql'),
-    i18n   = require('../../i18n'),
     filter,
     filterUtils;
 
@@ -27,8 +26,8 @@ filterUtils = {
         } catch (error) {
             errors.logAndThrowError(
                 new errors.ValidationError(error.message, 'filter'),
-                i18n.t('errors.models.plugins.filter.errorParsing'),
-                i18n.t('errors.models.plugins.filter.forInformationRead', {url: 'http://api.ghost.org/docs/filter'})
+                'Error parsing filter',
+                'For more information on how to use filter, see http://api.ghost.org/docs/filter'
             );
         }
 

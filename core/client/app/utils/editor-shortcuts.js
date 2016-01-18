@@ -1,9 +1,13 @@
 // # Editor shortcuts
-// Loaded by gh-editor component
+// Loaded by EditorBaseRoute, which is a shortcuts route
 // This map is used to ensure the right action is called by each shortcut
 import ctrlOrCmd from 'ghost/utils/ctrl-or-cmd';
 
 let shortcuts = {};
+
+// General editor shortcuts
+shortcuts[`${ctrlOrCmd}+alt+p`] = 'publish';
+shortcuts['alt+shift+z'] = 'toggleZenMode';
 
 // Markdown Shortcuts
 

@@ -2,7 +2,6 @@ var Promise = require('bluebird'),
     _       = require('lodash'),
     models  = require('../../models'),
     utils   = require('./utils'),
-    i18n    = require('../../i18n'),
 
     internal = utils.internal,
 
@@ -35,7 +34,7 @@ DataImporter.prototype.loadUsers = function () {
         });
 
         if (!users.owner) {
-            return Promise.reject(i18n.t('errors.data.import.dataImporter.unableToFindOwner'));
+            return Promise.reject('Unable to find an owner');
         }
 
         return users;

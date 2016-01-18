@@ -6,7 +6,6 @@ var Promise     = require('bluebird'),
     errors      = require('../../../errors'),
     models      = require('../../../models'),
     fixtures    = require('./permissions'),
-    i18n        = require('../../../i18n'),
 
     // private
     logInfo,
@@ -72,7 +71,7 @@ addAllPermissions = function (options) {
 
 // ## Populate
 populate = function (options) {
-    logInfo(i18n.t('errors.data.fixtures.populatingPermissions'));
+    logInfo('Populating permissions');
     // ### Ensure all permissions are added
     return addAllPermissions(options).then(function () {
         // ### Ensure all roles_permissions are added
@@ -86,12 +85,12 @@ populate = function (options) {
 to003 = function (options) {
     var ops = [];
 
-    logInfo(i18n.t('errors.data.fixtures.upgradingPermissions'));
+    logInfo('Upgrading permissions');
 
     // To safely upgrade, we need to clear up the existing permissions and permissions_roles before recreating the new
     // full set of permissions defined as of version 003
     return models.Permissions.forge().fetch().then(function (permissions) {
-        logInfo(i18n.t('errors.data.fixtures.removingOldPermissions'));
+        logInfo('Removing old permissions');
         permissions.each(function (permission) {
             ops.push(permission.related('roles').detach().then(function () {
                 return permission.destroy();

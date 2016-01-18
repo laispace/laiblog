@@ -26,9 +26,9 @@ export default RESTAdapter.extend({
         return this.ajax(this.buildURL(type.modelName, id), 'GET', {data: query});
     },
 
-    buildURL() {
+    buildURL(type, id) {
         // Ensure trailing slashes
-        let url = this._super(...arguments);
+        let url = this._super(type, id);
 
         if (url.slice(-1) !== '/') {
             url += '/';

@@ -43,7 +43,7 @@ export default BaseAdapter.extend({
     },
 
     createRecord(store, type, snapshot) {
-        return this.saveRecord(store, type, snapshot, {method: 'POST'}, 'createRecord');
+        return this.saveRecord(store, type, snapshot, {method: 'POST'});
     },
 
     updateRecord(store, type, snapshot) {
@@ -52,12 +52,12 @@ export default BaseAdapter.extend({
             id: get(snapshot, 'id')
         };
 
-        return this.saveRecord(store, type, snapshot, options, 'updateRecord');
+        return this.saveRecord(store, type, snapshot, options);
     },
 
-    saveRecord(store, type, snapshot, options, requestType) {
+    saveRecord(store, type, snapshot, options) {
         let _options = options || {};
-        let url = this.buildIncludeURL(store, type.modelName, _options.id, snapshot, requestType);
+        let url = this.buildIncludeURL(store, type.modelName, _options.id, snapshot, 'createRecord');
         let payload = this.preparePayload(store, type, snapshot);
 
         return this.ajax(url, _options.method, payload);

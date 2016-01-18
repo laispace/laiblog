@@ -17,7 +17,6 @@ var _                          = require('lodash'),
     EmailError                 = require('./email-error'),
     DataImportError            = require('./data-import-error'),
     TooManyRequestsError       = require('./too-many-requests-error'),
-    i18n                       = require('../i18n'),
     config,
     errors,
 
@@ -44,7 +43,7 @@ errors = {
 
     throwError: function (err) {
         if (!err) {
-            err = new Error(i18n.t('errors.errors.anErrorOccurred'));
+            err = new Error('An error occurred');
         }
 
         if (_.isString(err)) {
@@ -72,8 +71,8 @@ errors = {
         if ((process.env.NODE_ENV === 'development' ||
             process.env.NODE_ENV === 'staging' ||
             process.env.NODE_ENV === 'production')) {
-            warn = warn || i18n.t('errors.errors.noMessageSupplied');
-            var msgs = [chalk.yellow(i18n.t('errors.errors.warning'), warn), '\n'];
+            warn = warn || 'no message supplied';
+            var msgs = [chalk.yellow('\nWarning:', warn), '\n'];
 
             if (context) {
                 msgs.push(chalk.white(context), '\n');
@@ -110,22 +109,22 @@ errors = {
             if (_.isObject(err) && _.isString(err.message)) {
                 err = err.message;
             } else {
-                err = i18n.t('errors.errors.unknownErrorOccurred');
+                err = 'An unknown error occurred.';
             }
         }
 
         // Overwrite error to provide information that this is probably a permission problem
         // TODO: https://github.com/TryGhost/Ghost/issues/3687
         if (err.indexOf('SQLITE_READONLY') !== -1) {
-            context = i18n.t('errors.errors.databaseIsReadOnly');
-            help = i18n.t('errors.errors.checkDatabase');
+            context = 'Your database is in read only mode. Visitors can read your blog, but you can\'t log in or add posts.';
+            help = 'Check your database file and make sure that file owner and permissions are correct.';
         }
         // TODO: Logging framework hookup
         // Eventually we'll have better logging which will know about envs
         if ((process.env.NODE_ENV === 'development' ||
             process.env.NODE_ENV === 'staging' ||
             process.env.NODE_ENV === 'production')) {
-            msgs = [chalk.red(i18n.t('errors.errors.error'), err), '\n'];
+            msgs = [chalk.red('\nERROR:', err), '\n'];
 
             if (context) {
                 msgs.push(chalk.white(context), '\n');
@@ -200,7 +199,7 @@ errors = {
             statusCode = errorItem.code || 500;
 
             errorContent.message = _.isString(errorItem) ? errorItem :
-                (_.isObject(errorItem) ? errorItem.message : i18n.t('errors.errors.unknownApiError'));
+                (_.isObject(errorItem) ? errorItem.message : 'Unknown API Error');
             errorContent.errorType = errorItem.errorType || 'InternalServerError';
             errors.push(errorContent);
         });
@@ -211,7 +210,7 @@ errors = {
     formatAndRejectAPIError: function (error, permsMessage) {
         if (!error) {
             return this.rejectError(
-                new this.NoPermissionError(permsMessage || i18n.t('errors.errors.notEnoughPermission'))
+                new this.NoPermissionError(permsMessage || 'You do not have permission to perform this action')
             );
         }
 
@@ -294,22 +293,22 @@ errors = {
                     return res.status(code).send(html);
                 }
                 // There was an error trying to render the error page, output the error
-                self.logError(templateErr, i18n.t('errors.errors.errorWhilstRenderingError'), i18n.t('errors.errors.errorTemplateHasError'));
+                self.logError(templateErr, 'Error whilst rendering error page', 'Error template has an error');
 
                 // And then try to explain things to the user...
                 // Cheat and output the error using handlebars escapeExpression
                 return res.status(500).send(
-                    '<h1>' + i18n.t('errors.errors.oopsErrorTemplateHasError') + '</h1>' +
-                    '<p>' + i18n.t('errors.errors.encounteredError') + '</p>' +
+                    '<h1>Oops, seems there is an error in the error template.</h1>' +
+                    '<p>Encountered the error: </p>' +
                     '<pre>' + hbs.handlebars.Utils.escapeExpression(templateErr.message || templateErr) + '</pre>' +
-                    '<br ><p>' + i18n.t('errors.errors.whilstTryingToRender') + '</p>' +
+                    '<br ><p>whilst trying to render an error page for the error: </p>' +
                     code + ' ' + '<pre>'  + hbs.handlebars.Utils.escapeExpression(err.message || err) + '</pre>'
                 );
             });
         }
 
         if (code >= 500) {
-            this.logError(err, i18n.t('errors.errors.renderingErrorPage'), i18n.t('errors.errors.caughtProcessingError'));
+            this.logError(err, 'Rendering Error Page', 'Ghost caught a processing error in the middleware layer.');
         }
 
         // Are we admin? If so, don't worry about the user template
@@ -322,7 +321,7 @@ errors = {
     },
 
     error404: function (req, res, next) {
-        var message = i18n.t('errors.errors.pageNotFound');
+        var message = 'Page not found';
 
         // do not cache 404 error
         res.set({'Cache-Control': 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0'});
@@ -360,7 +359,7 @@ errors = {
                 statusCode = errorItem.code || 500;
 
                 errorContent.message = _.isString(errorItem) ? errorItem :
-                    (_.isObject(errorItem) ? errorItem.message : i18n.t('errors.errors.unknownError'));
+                    (_.isObject(errorItem) ? errorItem.message : 'Unknown Error');
                 errorContent.errorType = errorItem.errorType || 'InternalServerError';
                 returnErrors.push(errorContent);
             });

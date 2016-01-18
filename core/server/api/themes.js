@@ -7,7 +7,6 @@ var Promise            = require('bluebird'),
     settings           = require('./settings'),
     pipeline           = require('../utils/pipeline'),
     utils              = require('./utils'),
-    i18n               = require('../i18n'),
 
     docName = 'themes',
     themes;
@@ -149,7 +148,7 @@ themes = {
 
         // Check whether the request is properly formatted.
         if (!_.isArray(object.themes)) {
-            return Promise.reject(new errors.BadRequestError(i18n.t('errors.api.themes.invalidRequest')));
+            return Promise.reject(new errors.BadRequestError('Invalid request.'));
         }
 
         themeName = object.themes[0].uuid;
@@ -167,7 +166,7 @@ themes = {
                 });
 
                 if (!theme) {
-                    return Promise.reject(new errors.BadRequestError(i18n.t('errors.api.themes.themeDoesNotExist')));
+                    return Promise.reject(new errors.BadRequestError('Theme does not exist.'));
                 }
 
                 if (!theme.name) {

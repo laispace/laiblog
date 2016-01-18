@@ -4,7 +4,6 @@ var _               = require('lodash'),
     config          = require('../../config'),
     errors          = require('../../errors'),
     events          = require('../../events'),
-    i18n            = require('../../i18n'),
     pingList;
 
 // ToDo: Make this configurable
@@ -69,8 +68,8 @@ function ping(post) {
         req.on('error', function (error) {
             errors.logError(
                 error,
-                i18n.t('errors.data.xml.xmlrpc.pingUpdateFailed.error'),
-                i18n.t('errors.data.xml.xmlrpc.pingUpdateFailed.help', {url: 'http://support.ghost.org'})
+                'Pinging services for updates on your blog failed, your blog will continue to function.',
+                'If you get this error repeatedly, please seek help on http://support.ghost.org.'
             );
         });
         req.end();

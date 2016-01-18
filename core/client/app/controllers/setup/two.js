@@ -123,14 +123,12 @@ export default Controller.extend(ValidationEngine, {
                     }
 
                     // Don't call the success handler, otherwise we will be redirected to admin
-                    this.set('session.skipAuthSuccessHandler', true);
+                    this.get('application').set('skipAuthSuccessHandler', true);
                     this.get('session').authenticate('authenticator:oauth2', this.get('email'), this.get('password')).then(() => {
                         this.set('blogCreated', true);
                         return this.afterAuthentication(result);
                     }).catch((error) => {
                         this._handleAuthenticationError(error);
-                    }).finally(() => {
-                        this.set('session.skipAuthSuccessHandler', undefined);
                     });
                 }).catch((error) => {
                     this._handleSaveError(error);

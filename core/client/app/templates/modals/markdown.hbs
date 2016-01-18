@@ -1,9 +1,5 @@
-<header class="modal-header">
-    <h1>Markdown Help</h1>
-</header>
-<a class="close icon-x" href="" title="Close" {{action "closeModal"}}><span class="hidden">Close</span></a>
-
-<div class="modal-body">
+{{#gh-modal-dialog action="closeModal" showClose=true style="wide"
+    title="Markdown Help"}}
     <section class="markdown-help-container">
         <table class="modal-markdown-help-table">
             <thead>
@@ -78,4 +74,4 @@
         </table>
         For further Markdown syntax reference: <a href="http://support.ghost.org/markdown-guide/" target="_blank">Markdown Documentation</a>
     </section>
-</div>
+{{/gh-modal-dialog}}

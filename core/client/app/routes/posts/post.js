@@ -68,7 +68,7 @@ export default AuthenticatedRoute.extend(ShortcutsRoute, {
         },
 
         deletePost() {
-            this.controllerFor('posts').send('toggleDeletePostModal');
+            this.send('openModal', 'delete-post', this.get('controller.model'));
         }
     }
 });

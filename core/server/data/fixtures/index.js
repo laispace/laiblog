@@ -16,7 +16,6 @@ var Promise     = require('bluebird'),
     fixtures    = require('./fixtures'),
     permissions = require('./permissions'),
     notifications = require('../../api/notifications'),
-    i18n        = require('../../i18n'),
 
     // Private
     logInfo,
@@ -31,7 +30,7 @@ var Promise     = require('bluebird'),
     update;
 
 logInfo = function logInfo(message) {
-    errors.logInfo(i18n.t('notices.data.fixtures.migrations'), message);
+    errors.logInfo('Migrations', message);
 };
 
 /**
@@ -47,7 +46,7 @@ convertAdminToOwner = function convertAdminToOwner() {
         return models.Role.findOne({name: 'Owner'});
     }).then(function (ownerRole) {
         if (adminUser) {
-            logInfo(i18n.t('notices.data.fixtures.convertingAdmToOwner'));
+            logInfo('Converting admin to owner');
             return adminUser.roles().updatePivot({role_id: ownerRole.id});
         }
     });
@@ -65,7 +64,7 @@ createOwner = function createOwner() {
         user.roles = [ownerRole.id];
         user.password = utils.uid(50);
 
-        logInfo(i18n.t('notices.data.fixtures.creatingOwner'));
+        logInfo('Creating owner');
         return models.User.add(user, options);
     });
 };
@@ -78,7 +77,7 @@ populate = function populate() {
         Role = models.Role,
         Client = models.Client;
 
-    logInfo(i18n.t('notices.data.fixtures.populatingFixtures'));
+    logInfo('Populating fixtures');
 
     _.each(fixtures.posts, function (post) {
         ops.push(Post.add(post, options));
@@ -134,12 +133,12 @@ to003 = function to003() {
         Role = models.Role,
         Client = models.Client;
 
-    logInfo(i18n.t('notices.data.fixtures.upgradingFixturesTo', {version: '003'}));
+    logInfo('Upgrading fixtures to 003');
 
     // Add the client fixture if missing
     upgradeOp = Client.findOne({slug: fixtures.clients[0].slug}).then(function (client) {
         if (!client) {
-            logInfo(i18n.t('notices.data.fixtures.addingClientFixture'));
+            logInfo('Adding ghost-admin client fixture');
             return Client.add(fixtures.clients[0], options);
         }
     });
@@ -148,7 +147,7 @@ to003 = function to003() {
     // Add the owner role if missing
     upgradeOp = Role.findOne({name: fixtures.roles[3].name}).then(function (owner) {
         if (!owner) {
-            logInfo(i18n.t('notices.data.fixtures.addingOwnerRoleFixture'));
+            logInfo('Adding owner role fixture');
             _.each(fixtures.roles.slice(3), function (role) {
                 return Role.add(role, options);
             });
@@ -172,15 +171,15 @@ to004 = function to004() {
         ops = [],
         upgradeOp,
         jquery = [
-            i18n.t('notices.data.fixtures.canSafelyDelete'),
+            '<!-- You can safely delete this line if your theme does not require jQuery -->\n',
             '<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>\n\n'
         ],
         privacyMessage = [
-            i18n.t('notices.data.fixtures.jQueryRemoved'),
-            i18n.t('notices.data.fixtures.canBeChanged')
+            'jQuery has been removed from Ghost core and is now being loaded from the jQuery Foundation\'s CDN.',
+            'This can be changed or removed in your <strong>Code Injection</strong> settings area.'
         ];
 
-    logInfo(i18n.t('notices.data.fixtures.upgradingFixturesTo', {version: '004'}));
+    logInfo('Upgrading fixtures to 004');
 
     // add jquery setting and privacy info
     upgradeOp = function () {
@@ -189,7 +188,7 @@ to004 = function to004() {
                 value = setting.attributes.value;
                 // Only add jQuery if it's not already in there
                 if (value.indexOf(jquery.join('')) === -1) {
-                    logInfo(i18n.t('notices.data.fixtures.addingJquery'));
+                    logInfo('Adding jQuery link to ghost_foot');
                     value = jquery.join('') + value;
                     return models.Settings.edit({key: 'ghost_foot', value: value}, options).then(function () {
                         if (_.isEmpty(config.privacy)) {
@@ -211,7 +210,7 @@ to004 = function to004() {
     upgradeOp = function () {
         return models.Settings.findOne('isPrivate').then(function (setting) {
             if (setting) {
-                logInfo(i18n.t('notices.data.fixtures.updateIsPrivate'));
+                logInfo('Update isPrivate setting');
                 return models.Settings.edit({key: 'isPrivate', type: 'private'}, options);
             }
             return Promise.resolve();
@@ -223,7 +222,7 @@ to004 = function to004() {
     upgradeOp = function () {
         return models.Settings.findOne('password').then(function (setting) {
             if (setting) {
-                logInfo(i18n.t('notices.data.fixtures.updatePassword'));
+                logInfo('Update password setting');
                 return models.Settings.edit({key: 'password', type: 'private'}, options);
             }
             return Promise.resolve();
@@ -236,7 +235,7 @@ to004 = function to004() {
     upgradeOp = function () {
         return models.Client.findOne({slug: fixtures.clients[0].slug}).then(function (client) {
             if (client) {
-                logInfo(i18n.t('notices.data.fixtures.updateAdminClientFixture'));
+                logInfo('Update ghost-admin client fixture');
                 var adminClient = fixtures.clients[0];
                 adminClient.secret = crypto.randomBytes(6).toString('hex');
                 return models.Client.edit(adminClient, _.extend({}, options, {id: client.id}));
@@ -250,7 +249,7 @@ to004 = function to004() {
     upgradeOp = function () {
         return models.Client.findOne({slug: fixtures.clients[1].slug}).then(function (client) {
             if (!client) {
-                logInfo(i18n.t('notices.data.fixtures.addFrontendClientFixture'));
+                logInfo('Add ghost-frontend client fixture');
                 var frontendClient = fixtures.clients[1];
                 frontendClient.secret = crypto.randomBytes(6).toString('hex');
                 return models.Client.add(frontendClient, options);
@@ -277,7 +276,7 @@ to004 = function to004() {
                     }
                 });
                 if (tagOps.length > 0) {
-                    logInfo(i18n.t('notices.data.fixtures.cleaningTags', {length: tagOps.length}));
+                    logInfo('Cleaning ' + tagOps.length + ' malformed tags');
                     return Promise.all(tagOps);
                 }
             }
@@ -289,7 +288,7 @@ to004 = function to004() {
     // Add post_tag order
     upgradeOp = function () {
         var tagOps = [];
-        logInfo(i18n.t('notices.data.fixtures.collectingDataOnTagOrder'));
+        logInfo('Collecting data on tag order for posts...');
         return models.Post.findAll(_.extend({}, options)).then(function (posts) {
             if (posts) {
                 return posts.mapThen(function (post) {
@@ -314,9 +313,9 @@ to004 = function to004() {
             });
 
             if (tagOps.length > 0) {
-                logInfo(i18n.t('notices.data.fixtures.updatingOrder', {length: tagOps.length}));
+                logInfo('Updating order on ' + tagOps.length + ' tag relationships (could take a while)...');
                 return sequence(tagOps).then(function () {
-                    logInfo(i18n.t('notices.data.fixtures.updatedOrder'));
+                    logInfo('Tag order successfully updated');
                 });
             }
         });
@@ -327,7 +326,7 @@ to004 = function to004() {
     upgradeOp = function () {
         return models.Post.findOne({slug: fixtures.posts_0_7[0].slug, status: 'all'}, options).then(function (post) {
             if (!post) {
-                logInfo(i18n.t('notices.data.fixtures.addingUpgrade', {version: '0.7'}));
+                logInfo('Adding 0.7 upgrade post fixture');
                 // Set the published_at timestamp, but keep the post as a draft so doesn't appear on the frontend
                 // This is a hack to ensure that this post appears at the very top of the drafts list, because
                 // unpublished posts always appear first
@@ -344,7 +343,7 @@ to004 = function to004() {
 update = function update(fromVersion, toVersion) {
     var ops = [];
 
-    logInfo(i18n.t('notices.data.fixtures.updatingFixtures'));
+    logInfo('Updating fixtures');
     // Are we migrating to, or past 003?
     if ((fromVersion < '003' && toVersion >= '003') ||
         fromVersion === '003' && toVersion === '003' && process.env.FORCE_MIGRATION) {

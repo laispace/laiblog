@@ -59,7 +59,7 @@ export default AuthenticatedRoute.extend(base, NotFoundHandler, {
 
     actions: {
         authorizationFailed() {
-            this.get('controller').send('toggleReAuthenticateModal');
+            this.send('openModal', 'signin');
         }
     }
 });

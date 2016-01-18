@@ -7,7 +7,6 @@ var _            = require('lodash'),
     canThis      = require('../permissions').canThis,
     errors       = require('../errors'),
     utils        = require('./utils'),
-    i18n         = require('../i18n'),
 
     docName      = 'settings',
     settings,
@@ -37,9 +36,9 @@ var _            = require('lodash'),
 */
 updateConfigCache = function () {
     var errorMessages = [
-        i18n.t('errors.api.settings.invalidJsonInLabs'),
-        i18n.t('errors.api.settings.labsColumnCouldNotBeParsed'),
-        i18n.t('errors.api.settings.tryUpdatingLabs')
+        'Error: Invalid JSON in settings.labs',
+        'The column with key "labs" could not be parsed as JSON',
+        'Please try updating a setting on the labs page, or manually editing your DB'
     ], labsValue = {};
 
     if (settingsCache.labs && settingsCache.labs.value) {
@@ -246,7 +245,7 @@ populateDefaultSetting = function (key) {
         }
 
         // TODO: Different kind of error?
-        return Promise.reject(new errors.NotFoundError(i18n.t('errors.api.settings.problemFindingSetting', {key: key})));
+        return Promise.reject(new errors.NotFoundError('Problem finding setting: ' + key));
     });
 };
 
@@ -261,12 +260,12 @@ canEditAllSettings = function (settingsInfo, options) {
     var checkSettingPermissions = function (setting) {
             if (setting.type === 'core' && !(options.context && options.context.internal)) {
                 return Promise.reject(
-                    new errors.NoPermissionError(i18n.t('errors.api.settings.accessCoreSettingFromExtReq'))
+                    new errors.NoPermissionError('Attempted to access core setting from external request')
                 );
             }
 
             return canThis(options.context).edit.setting(setting.key).catch(function () {
-                return Promise.reject(new errors.NoPermissionError(i18n.t('errors.api.settings.noPermissionToEditSettings')));
+                return Promise.reject(new errors.NoPermissionError('You do not have permission to edit settings.'));
             });
         },
         checks = _.map(settingsInfo, function (settingInfo) {
@@ -345,7 +344,7 @@ settings = {
 
                 if (setting.type === 'core' && !(options.context && options.context.internal)) {
                     return Promise.reject(
-                        new errors.NoPermissionError(i18n.t('errors.api.settings.accessCoreSettingFromExtReq'))
+                        new errors.NoPermissionError('Attempted to access core setting from external request')
                     );
                 }
 
@@ -356,7 +355,7 @@ settings = {
                 return canThis(options.context).read.setting(options.key).then(function () {
                     return settingsResult(result);
                 }, function () {
-                    return Promise.reject(new errors.NoPermissionError(i18n.t('errors.api.settings.noPermissionToReadSettings')));
+                    return Promise.reject(new errors.NoPermissionError('You do not have permission to read settings.'));
                 });
             };
 

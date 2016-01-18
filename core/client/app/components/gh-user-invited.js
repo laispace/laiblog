@@ -31,7 +31,8 @@ export default Component.extend({
                     notifications.showAlert('Invitation email was not sent.  Please try resending.', {type: 'error', key: 'invite.resend.not-sent'});
                 } else {
                     user.set('status', result.users[0].status);
-                    notifications.showNotification(notificationText, {key: 'invite.resend.success'});
+                    notifications.showNotification(notificationText);
+                    notifications.closeAlerts('invite.resend');
                 }
             }).catch((error) => {
                 notifications.showAPIError(error, {key: 'invite.resend'});
@@ -50,7 +51,8 @@ export default Component.extend({
                 if (user.get('invited')) {
                     user.destroyRecord().then(() => {
                         let notificationText = `Invitation revoked. (${email})`;
-                        notifications.showNotification(notificationText, {key: 'invite.revoke.success'});
+                        notifications.showNotification(notificationText);
+                        notifications.closeAlerts('invite.revoke');
                     }).catch((error) => {
                         notifications.showAPIError(error, {key: 'invite.revoke'});
                     });

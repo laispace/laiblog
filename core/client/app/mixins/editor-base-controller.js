@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import PostModel from 'ghost/models/post';
 import boundOneWay from 'ghost/utils/bound-one-way';
+import imageManager from 'ghost/utils/ed-image-manager';
 
 const {Mixin, RSVP, computed, inject, observer, run} = Ember;
 const {alias} = computed;
@@ -16,10 +17,8 @@ PostModel.eachAttribute(function (name) {
 export default Mixin.create({
     _autoSaveId: null,
     _timedSaveId: null,
+    editor: null,
     submitting: false,
-
-    showLeaveEditorModal: false,
-    showReAuthenticateModal: false,
 
     postSettingsMenuController: inject.controller('post-settings-menu'),
     notifications: inject.service(),
@@ -124,7 +123,7 @@ export default Mixin.create({
             let markdown = model.get('markdown');
             let title = model.get('title');
             let titleScratch = model.get('titleScratch');
-            let scratch = this.get('model.scratch');
+            let scratch = this.get('editor').getValue();
             let changedAttributes;
 
             if (!this.tagNamesEqual()) {
@@ -213,18 +212,13 @@ export default Mixin.create({
     // TODO: Update for new notification click-action API
     showSaveNotification(prevStatus, status, delay) {
         let message = this.messageMap.success.post[prevStatus][status];
+        let path = this.get('model.absoluteUrl');
+        let type = this.get('postOrPage');
         let notifications = this.get('notifications');
-        let type, path;
 
         if (status === 'published') {
-            type = this.get('postOrPage');
-            path = this.get('model.absoluteUrl');
-        } else {
-            type = 'Preview';
-            path = this.get('model.previewUrl');
+            message += `&nbsp;<a href="${path}">View ${type}</a>`;
         }
-
-        message += `&nbsp;<a href="${path}" target="_blank">View ${type}</a>`;
 
         notifications.showNotification(message.htmlSafe(), {delayed: delay});
     },
@@ -256,28 +250,23 @@ export default Mixin.create({
     },
 
     actions: {
-        cancelTimers() {
-            let autoSaveId = this._autoSaveId;
-            let timedSaveId = this._timedSaveId;
-
-            if (autoSaveId) {
-                run.cancel(autoSaveId);
-                this._autoSaveId = null;
-            }
-
-            if (timedSaveId) {
-                run.cancel(timedSaveId);
-                this._timedSaveId = null;
-            }
-        },
-
         save(options) {
+            let status;
             let prevStatus = this.get('model.status');
             let isNew = this.get('model.isNew');
+            let autoSaveId = this._autoSaveId;
+            let timedSaveId = this._timedSaveId;
             let psmController = this.get('postSettingsMenuController');
-            let promise, status;
+            let promise;
 
             options = options || {};
+
+            // when navigating quickly between pages autoSave will occasionally
+            // try to run after the editor has been torn down so bail out here
+            // before we throw errors
+            if (!this.get('editor').$()) {
+                return 0;
+            }
 
             this.toggleProperty('submitting');
 
@@ -288,11 +277,19 @@ export default Mixin.create({
                 status = this.get('willPublish') ? 'published' : 'draft';
             }
 
-            this.send('cancelTimers');
+            if (autoSaveId) {
+                run.cancel(autoSaveId);
+                this._autoSaveId = null;
+            }
+
+            if (timedSaveId) {
+                run.cancel(timedSaveId);
+                this._timedSaveId = null;
+            }
 
             // Set the properties that are indirected
             // set markdown equal to what's in the editor, minus the image markers.
-            this.set('model.markdown', this.get('model.scratch'));
+            this.set('model.markdown', this.get('editor').getValue());
             this.set('model.status', status);
 
             // Set a default title
@@ -346,48 +343,51 @@ export default Mixin.create({
             }
         },
 
+        // set from a `sendAction` on the gh-ed-editor component,
+        // so that we get a reference for handling uploads.
+        setEditor(editor) {
+            this.set('editor', editor);
+        },
+
+        // fired from the gh-ed-preview component when an image upload starts
+        disableEditor() {
+            this.get('editor').disable();
+        },
+
+        // fired from the gh-ed-preview component when an image upload finishes
+        enableEditor() {
+            this.get('editor').enable();
+        },
+
+        // Match the uploaded file to a line in the editor, and update that line with a path reference
+        // ensuring that everything ends up in the correct place and format.
+        handleImgUpload(e, resultSrc) {
+            let editor = this.get('editor');
+            let editorValue = editor.getValue();
+            let replacement = imageManager.getSrcRange(editorValue, e.target);
+            let cursorPosition;
+
+            if (replacement) {
+                cursorPosition = replacement.start + resultSrc.length + 1;
+                if (replacement.needsParens) {
+                    resultSrc = `(${resultSrc})`;
+                }
+                editor.replaceSelection(resultSrc, replacement.start, replacement.end, cursorPosition);
+            }
+        },
+
         autoSaveNew() {
             if (this.get('model.isNew')) {
                 this.send('save', {silent: true, backgroundSave: true});
             }
         },
 
-        toggleLeaveEditorModal(transition) {
-            this.set('leaveEditorTransition', transition);
-            this.toggleProperty('showLeaveEditorModal');
+        updateEditorScrollInfo(scrollInfo) {
+            this.set('editorScrollInfo', scrollInfo);
         },
 
-        leaveEditor() {
-            let transition = this.get('leaveEditorTransition');
-            let model = this.get('model');
-
-            if (!transition) {
-                this.get('notifications').showAlert('Sorry, there was an error in the application. Please let the Ghost team know what happened.', {type: 'error'});
-                return;
-            }
-
-            // definitely want to clear the data store and post of any unsaved, client-generated tags
-            model.updateTags();
-
-            if (model.get('isNew')) {
-                // the user doesn't want to save the new, unsaved post, so delete it.
-                model.deleteRecord();
-            } else {
-                // roll back changes on model props
-                model.rollbackAttributes();
-            }
-
-            // setting hasDirtyAttributes to false here allows willTransition on the editor route to succeed
-            this.set('hasDirtyAttributes', false);
-
-            // since the transition is now certain to complete, we can unset window.onbeforeunload here
-            window.onbeforeunload = null;
-
-            return transition.retry();
-        },
-
-        toggleReAuthenticateModal() {
-            this.toggleProperty('showReAuthenticateModal');
+        updateHeight(height) {
+            this.set('height', height);
         }
     }
 });

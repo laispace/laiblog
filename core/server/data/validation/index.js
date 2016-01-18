@@ -5,7 +5,6 @@ var schema    = require('../schema').tables,
     errors    = require('../../errors'),
     config    = require('../../config'),
     readThemes = require('../../utils/read-themes'),
-    i18n        = require('../../i18n'),
 
     validateSchema,
     validateSettings,
@@ -45,7 +44,7 @@ validateSchema = function validateSchema(tableName, model) {
         if (model.hasOwnProperty(columnKey) && schema[tableName][columnKey].hasOwnProperty('nullable')
                 && schema[tableName][columnKey].nullable !== true) {
             if (validator.isNull(model[columnKey]) || validator.empty(model[columnKey])) {
-                message = i18n.t('notices.data.validation.index.valueCannotBeBlank', {tableName: tableName, columnKey: columnKey});
+                message = 'Value in [' + tableName + '.' + columnKey + '] cannot be blank.';
                 validationErrors.push(new errors.ValidationError(message, tableName + '.' + columnKey));
             }
         }
@@ -55,8 +54,8 @@ validateSchema = function validateSchema(tableName, model) {
             // check length
             if (schema[tableName][columnKey].hasOwnProperty('maxlength')) {
                 if (!validator.isLength(model[columnKey], 0, schema[tableName][columnKey].maxlength)) {
-                    message = i18n.t('notices.data.validation.index.valueExceedsMaxLength',
-                                     {tableName: tableName, columnKey: columnKey, maxlength: schema[tableName][columnKey].maxlength});
+                    message = 'Value in [' + tableName + '.' + columnKey + '] exceeds maximum length of '
+                        + schema[tableName][columnKey].maxlength + ' characters.';
                     validationErrors.push(new errors.ValidationError(message, tableName + '.' + columnKey));
                 }
             }
@@ -69,7 +68,7 @@ validateSchema = function validateSchema(tableName, model) {
             // check type
             if (schema[tableName][columnKey].hasOwnProperty('type')) {
                 if (schema[tableName][columnKey].type === 'integer' && !validator.isInt(model[columnKey])) {
-                    message = i18n.t('notices.data.validation.index.valueIsNotInteger', {tableName: tableName, columnKey: columnKey});
+                    message = 'Value in [' + tableName + '.' + columnKey + '] is not an integer.';
                     validationErrors.push(new errors.ValidationError(message, tableName + '.' + columnKey));
                 }
             }
@@ -118,7 +117,7 @@ validateActiveTheme = function validateActiveTheme(themeName) {
 
     return availableThemes.then(function then(themes) {
         if (!themes.hasOwnProperty(themeName)) {
-            return Promise.reject(new errors.ValidationError(i18n.t('notices.data.validation.index.themeCannotBeActivated', {themeName: themeName}), 'activeTheme'));
+            return Promise.reject(new errors.ValidationError(themeName + ' cannot be activated because it is not currently installed.', 'activeTheme'));
         }
     });
 };
@@ -157,8 +156,7 @@ validate = function validate(value, key, validations) {
 
         // equivalent of validator.isSomething(option1, option2)
         if (validator[validationName].apply(validator, validationOptions) !== goodResult) {
-            validationErrors.push(new errors.ValidationError(i18n.t('notices.data.validation.index.validationFailed',
-                                                                    {validationName: validationName, key: key})));
+            validationErrors.push(new errors.ValidationError('Validation (' + validationName + ') failed for ' + key, key));
         }
 
         validationOptions.shift();

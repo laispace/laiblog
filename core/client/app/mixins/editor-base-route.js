@@ -1,18 +1,12 @@
 import Ember from 'ember';
 import ShortcutsRoute from 'ghost/mixins/shortcuts-route';
 import styleBody from 'ghost/mixins/style-body';
-import ctrlOrCmd from 'ghost/utils/ctrl-or-cmd';
+import editorShortcuts from 'ghost/utils/editor-shortcuts';
 
 const {Mixin, RSVP, run} = Ember;
 
-let generalShortcuts = {};
-generalShortcuts[`${ctrlOrCmd}+alt+p`] = 'publish';
-generalShortcuts['alt+shift+z'] = 'toggleZenMode';
-
 export default Mixin.create(styleBody, ShortcutsRoute, {
     classNames: ['editor'],
-
-    shortcuts: generalShortcuts,
 
     actions: {
         save() {
@@ -28,6 +22,14 @@ export default Mixin.create(styleBody, ShortcutsRoute, {
 
         toggleZenMode() {
             Ember.$('body').toggleClass('zen');
+        },
+
+        // The actual functionality is implemented in utils/ed-editor-shortcuts
+        editorShortcut(options) {
+            // Only fire editor shortcuts when the editor has focus.
+            if (this.get('controller.editor').$().is(':focus')) {
+                this.get('controller.editor').shortcut(options.type);
+            }
         },
 
         willTransition(transition) {
@@ -61,7 +63,7 @@ export default Mixin.create(styleBody, ShortcutsRoute, {
 
             if (!fromNewToEdit && !deletedWithoutChanges && controllerIsDirty) {
                 transition.abort();
-                controller.send('toggleLeaveEditorModal', transition);
+                this.send('openModal', 'leave-editor', [controller, transition]);
                 return;
             }
 
@@ -94,6 +96,8 @@ export default Mixin.create(styleBody, ShortcutsRoute, {
             outlet: 'settings-menu'
         });
     },
+
+    shortcuts: editorShortcuts,
 
     attachModelHooks(controller, model) {
         // this will allow us to track when the model is saved and update the controller

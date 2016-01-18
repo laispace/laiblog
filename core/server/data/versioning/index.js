@@ -1,7 +1,6 @@
 var _               = require('lodash'),
     errors          = require('../../errors'),
     config          = require('../../config'),
-    i18n            = require('../../i18n'),
 
     defaultSettings = require('../default-settings'),
 
@@ -37,7 +36,7 @@ function getDatabaseVersion() {
                 .then(function (versions) {
                     var databaseVersion = _.reduce(versions, function (memo, version) {
                         if (isNaN(version.value)) {
-                            errors.throwError(i18n.t('errors.data.versioning.index.dbVersionNotRecognized'));
+                            errors.throwError('Database version is not recognised');
                         }
                         return parseInt(version.value, 10) > parseInt(memo, 10) ? version.value : memo;
                     }, initialVersion);
@@ -50,7 +49,7 @@ function getDatabaseVersion() {
                     return databaseVersion;
                 });
         }
-        throw new Error(i18n.t('errors.data.versioning.index.settingsTableDoesNotExist'));
+        throw new Error('Settings table does not exist');
     });
 }
 
