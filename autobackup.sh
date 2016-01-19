@@ -6,10 +6,10 @@ DATE_ALL=`date +%Y-%m-%d_%H.%M.%S`
 # test
 # echo "$DATE_YEAR/$DATE_MONTH ..." > $DATE_YEAR-$DATE_MONTH-$DATE自动备份.txt
 
-cd /data/sites/laiblog/
+cd /data/sites/laispace.com/
 
 # backup content
-git add /data/sites/laiblog/content/
+git add /data/sites/laispace.com/content/
 
 git commit -m "auto backup"
 
