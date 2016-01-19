@@ -10,7 +10,7 @@ config = {
     // When running Ghost in the wild, use the production environment
     // Configure your URL and mail settings here
     production: {
-        url: 'http://laispace.com',
+        url: 'http://www.laispace.com',
         // Example mail config
         // Visit http://support.ghost.org/mail for instructions
         mail: {
